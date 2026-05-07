@@ -2,9 +2,11 @@ import { useState } from "react";
 import Onboarding from "./pages/Onboarding";
 import Registration from "./pages/Registration";
 import Instructions from "./pages/Instructions";
+import Observation from "./pages/Observation";
+import Observation2 from "./pages/Observation2";
 
 function App() {
-  const [step, setStep] = useState<"onboarding" | "registration" | "instructions" | "main">("onboarding");
+  const [step, setStep] = useState<"onboarding" | "registration" | "instructions" | "observation" | "observation2" | "main">("onboarding");
   const [userData, setUserData] = useState<any>(null);
 
   const handleOnboardingComplete = () => {
@@ -17,7 +19,19 @@ function App() {
   };
 
   const handleInstructionsComplete = () => {
+    setStep("observation");
+  };
+
+  const handleObservationComplete = () => {
+    setStep("observation2");
+  };
+
+  const handleObservation2Complete = () => {
     setStep("main");
+  };
+
+  const handleBackToObservation = () => {
+    setStep("observation");
   };
 
   if (step === "onboarding") {
@@ -30,6 +44,14 @@ function App() {
 
   if (step === "instructions") {
     return <Instructions onNext={handleInstructionsComplete} />;
+  }
+
+  if (step === "observation") {
+    return <Observation onNext={handleObservationComplete} />;
+  }
+
+  if (step === "observation2") {
+    return <Observation2 onNext={handleObservation2Complete} onBack={handleBackToObservation} />;
   }
 
   return (
