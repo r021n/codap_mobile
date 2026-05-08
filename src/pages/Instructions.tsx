@@ -8,59 +8,74 @@ const Instructions: React.FC<InstructionsProps> = ({ onNext }) => {
   const guideItems = [
     { icon: "arrow_back", label: "Kembali" },
     { icon: "arrow_forward", label: "Lanjut" },
-    { icon: "home", label: "Kembali ke menu utama" },
-    { icon: "science", label: "Science and Engineering Practices (SEP) NGSS" },
-    { icon: "person", label: "Tugas individu" },
-    { icon: "groups", label: "Tugas kelompok" },
+    { icon: "home", label: "Menu Utama" },
+    { icon: "science", label: "SEP NGSS" },
+    { icon: "person", label: "Tugas Individu" },
+    { icon: "groups", label: "Tugas Kelompok" },
     { icon: "auto_awesome", label: "Terintegrasi AI" },
     { icon: "analytics", label: "Terintegrasi CODAP" },
-    { icon: "query_stats", label: "Indikator literasi data" },
+    { icon: "query_stats", label: "Literasi Data" },
   ];
 
   return (
-    <div className="w-screen h-screen bg-white flex flex-col items-center p-2 sm:p-4 md:p-6 overflow-hidden font-sans selection:bg-green-200 selection:text-green-900">
-      <div className="w-full max-w-5xl flex flex-col flex-1 min-h-0 justify-between">
-        {/* Header - Compact */}
-        <div className="mb-2 md:mb-4 flex items-center">
-          <div className="bg-green-500 px-3 py-1.5 md:px-4 md:py-2 rounded-lg flex items-center shadow-sm">
-            <h1 className="text-[10px] md:text-sm font-black text-white uppercase tracking-[0.2em]">
-              Petunjuk Penggunaan Airdatalabs
-            </h1>
+    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B]">
+      {/* Left Column - Visual/Greeting */}
+      <div className="w-[40%] h-full bg-[#C6E67D] p-6 relative flex flex-col justify-center items-start overflow-hidden shrink-0 rounded-r-3xl shadow-sm">
+        {/* Decorative background shapes */}
+        <div className="absolute top-[-10%] left-[-10%] w-48 h-48 bg-white/30 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-48 h-48 bg-[#528C46]/20 rounded-full blur-2xl"></div>
+        
+        <div className="relative z-10 flex flex-col gap-2">
+          <div className="inline-block self-start px-3 py-1 bg-[#528C46] text-white text-[10px] font-bold rounded-full tracking-wider uppercase">
+            Panduan
           </div>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-[#0A110B] leading-tight">
+            Petunjuk <br /> Penggunaan
+          </h1>
+          <p className="text-[9px] sm:text-[10px] text-[#0A110B]/80 leading-snug max-w-[90%] mt-1">
+            Kenali dan pahami fungsi setiap ikon di bawah ini untuk mempermudah navigasi dan pembelajaranmu.
+          </p>
         </div>
+      </div>
 
-        {/* Grid of Icons - Enforce 3 columns to save vertical space on landscape */}
-        <div className="grid grid-cols-3 gap-1.5 md:gap-3 items-center flex-1 min-h-0 overflow-hidden">
-          {guideItems.map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-green-300 hover:bg-green-50/50 transition-all duration-300 group shadow-sm max-h-[60px] md:max-h-[80px]"
-            >
-              <div className="flex-linear-0 w-6 h-6 md:w-8 md:h-8 rounded-lg bg-white border border-slate-100 shadow-sm flex items-center justify-center text-green-500 group-hover:scale-105 transition-all duration-300">
-                <span className="material-symbols-outlined text-sm md:text-lg font-light">
-                  {item.icon}
-                </span>
-              </div>
-              <div className="flex flex-col min-w-0">
-                <p className="text-[7px] md:text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-0.5 truncate">
-                  Ikon / Tombol
-                </p>
-                <p className="text-[8px] md:text-[10px] font-bold text-slate-700 leading-tight line-clamp-2">
-                  {item.label}
-                </p>
-              </div>
+      {/* Right Column - Icons Grid & Action */}
+      <div className="w-[60%] h-full flex flex-col justify-center p-4 sm:p-6 overflow-hidden">
+        <div className="w-full max-w-xl mx-auto flex flex-col h-full justify-between gap-2">
+          
+          <div className="flex-1 flex flex-col justify-center min-h-0">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              {guideItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white border border-gray-100 hover:border-[#C6E67D] transition-all duration-300 shadow-sm group"
+                >
+                  <div className="flex-none w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FDFCF8] border border-gray-100 flex items-center justify-center text-[#528C46] group-hover:bg-[#C6E67D]/20 transition-colors">
+                    <span className="material-symbols-outlined text-[16px] sm:text-[18px]">
+                      {item.icon}
+                    </span>
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <p className="text-[8px] sm:text-[9px] font-bold text-[#6B7280] uppercase tracking-wider mb-0.5">
+                      Ikon
+                    </p>
+                    <p className="text-[9px] sm:text-[10px] font-bold leading-tight text-[#0A110B] line-clamp-2">
+                      {item.label}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Action Button - Compact */}
-        <div className="pt-2 md:pt-4">
-          <button
-            onClick={onNext}
-            className="w-full py-2.5 md:py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-lg font-bold text-[8px] md:text-[9px] uppercase tracking-widest shadow-lg shadow-green-500/20 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-          >
-            Lanjutkan Ke Pembelajaran
-          </button>
+          {/* Submit Button */}
+          <div className="pt-2 shrink-0">
+            <button
+              onClick={onNext}
+              className="w-full py-2 sm:py-2.5 bg-[#0A110B] text-white rounded-full font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all duration-300 shadow-sm hover:bg-black active:translate-y-0.5 cursor-pointer"
+            >
+              Lanjutkan Ke Pembelajaran
+            </button>
+          </div>
         </div>
       </div>
     </div>

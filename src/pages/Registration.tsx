@@ -35,23 +35,33 @@ const Registration = ({ onComplete }: RegistrationProps) => {
   };
 
   return (
-    <div className="w-screen h-screen bg-white flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden font-sans selection:bg-green-200 selection:text-green-900">
-      {/* Content Container - Constrained to prevent overflow */}
-      <div className="w-full max-w-2xl max-h-full flex flex-col justify-center">
-        <form onSubmit={handleSubmit} className="space-y-3 w-full">
-          {/* Header - Compact */}
-          <div className="mb-4 flex items-center">
-            <div className="bg-green-500 px-4 py-2 rounded-lg flex items-center shadow-sm">
-              <h1 className="text-xs md:text-sm font-black text-white uppercase tracking-[0.2em]">
-                Identitas
-              </h1>
-            </div>
+    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B]">
+      {/* Left Column - Visual/Greeting */}
+      <div className="w-[40%] h-full bg-[#C6E67D] p-6 relative flex flex-col justify-center items-start overflow-hidden shrink-0 rounded-r-3xl shadow-sm">
+        {/* Decorative background shapes */}
+        <div className="absolute top-[-10%] left-[-10%] w-48 h-48 bg-white/30 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-48 h-48 bg-[#528C46]/20 rounded-full blur-2xl"></div>
+        
+        <div className="relative z-10 flex flex-col gap-2">
+          <div className="inline-block self-start px-3 py-1 bg-[#528C46] text-white text-[10px] font-bold rounded-full tracking-wider uppercase">
+            Langkah 1
           </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A110B] leading-tight">
+            Lengkapi <br /> Identitasmu
+          </h1>
+          <p className="text-[10px] sm:text-xs text-[#0A110B]/80 leading-snug max-w-[90%] mt-1">
+            Sebelum memulai observasi sebagai Air Quality Specialist, mari isi data diri terlebih dahulu.
+          </p>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+      {/* Right Column - Form Container */}
+      <div className="w-[60%] h-full flex flex-col justify-center p-4 sm:p-6 overflow-hidden">
+        <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto flex flex-col gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2">
             {/* Nama Lengkap - Full Width */}
-            <div className="col-span-2 space-y-1">
-              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider ml-1">
+            <div className="col-span-2 flex flex-col gap-0.5">
+              <label className="text-[9px] font-bold text-[#6B7280] uppercase tracking-wider ml-2">
                 Nama Lengkap
               </label>
               <input
@@ -60,28 +70,26 @@ const Registration = ({ onComplete }: RegistrationProps) => {
                 value={formData.fullName}
                 onChange={handleChange}
                 placeholder="Masukkan nama lengkap"
-                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-[11px] text-slate-800"
+                className="w-full px-4 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-[10px] sm:text-xs text-[#0A110B]"
                 required
               />
             </div>
 
             {/* Jenis Kelamin */}
-            <div className="space-y-1">
-              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider ml-1">
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[9px] font-bold text-[#6B7280] uppercase tracking-wider ml-2">
                 Jenis Kelamin
               </label>
-              <div className="flex gap-1.5">
+              <div className="flex gap-1">
                 {["Laki-Laki", "Perempuan"].map((option) => (
                   <button
                     key={option}
                     type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({ ...prev, gender: option }))
-                    }
-                    className={`flex-1 py-1.5 rounded-lg border text-[9px] font-bold transition-all ${
+                    onClick={() => setFormData((prev) => ({ ...prev, gender: option }))}
+                    className={`flex-1 py-1.5 sm:py-2 rounded-full border text-[9px] sm:text-[10px] font-bold transition-all ${
                       formData.gender === option
-                        ? "bg-green-500 border-green-500 text-white shadow-md shadow-green-100"
-                        : "bg-white border-slate-200 text-slate-600 hover:border-green-300"
+                        ? "bg-[#528C46] border-[#528C46] text-white shadow-sm"
+                        : "bg-white border-gray-200 text-[#6B7280] hover:border-[#C6E67D]"
                     }`}
                   >
                     {option}
@@ -91,8 +99,8 @@ const Registration = ({ onComplete }: RegistrationProps) => {
             </div>
 
             {/* Usia */}
-            <div className="space-y-1">
-              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider ml-1">
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[9px] font-bold text-[#6B7280] uppercase tracking-wider ml-2">
                 Usia
               </label>
               <div className="relative">
@@ -102,18 +110,18 @@ const Registration = ({ onComplete }: RegistrationProps) => {
                   value={formData.age}
                   onChange={handleChange}
                   placeholder="0"
-                  className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-[11px] text-slate-800"
+                  className="w-full pl-4 pr-10 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-[10px] sm:text-xs text-[#0A110B]"
                   required
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-[#6B7280]">
                   tahun
                 </span>
               </div>
             </div>
 
             {/* Kelas */}
-            <div className="space-y-1">
-              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider ml-1">
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[9px] font-bold text-[#6B7280] uppercase tracking-wider ml-2">
                 Kelas
               </label>
               <input
@@ -122,14 +130,14 @@ const Registration = ({ onComplete }: RegistrationProps) => {
                 value={formData.className}
                 onChange={handleChange}
                 placeholder="XE A"
-                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-[11px] text-slate-800"
+                className="w-full px-4 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-[10px] sm:text-xs text-[#0A110B]"
                 required
               />
             </div>
 
             {/* No Presensi */}
-            <div className="space-y-1">
-              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider ml-1">
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[9px] font-bold text-[#6B7280] uppercase tracking-wider ml-2">
                 No. Presensi
               </label>
               <input
@@ -138,21 +146,21 @@ const Registration = ({ onComplete }: RegistrationProps) => {
                 value={formData.attendanceNumber}
                 onChange={handleChange}
                 placeholder="Contoh: 1"
-                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-[11px] text-slate-800"
+                className="w-full px-4 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-[10px] sm:text-xs text-[#0A110B]"
                 required
               />
             </div>
           </div>
 
-          {/* Submit Button - Compact */}
+          {/* Submit Button */}
           <div className="pt-2">
             <button
               type="submit"
               disabled={!isFormValid}
-              className={`w-full py-3 rounded-lg font-bold text-[9px] uppercase tracking-widest transition-all duration-300 shadow-sm ${
+              className={`w-full py-2 sm:py-2.5 rounded-full font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all duration-300 shadow-sm ${
                 isFormValid
-                  ? "bg-linear-to-r from-green-500 to-emerald-600 text-white hover:from-green-400 hover:to-emerald-500 hover:shadow-lg hover:shadow-green-500/40 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
-                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  ? "bg-[#0A110B] text-white hover:bg-black active:translate-y-0.5 cursor-pointer"
+                  : "bg-[#0A110B]/20 text-[#0A110B]/50 cursor-not-allowed"
               }`}
             >
               Lanjutkan
