@@ -24,7 +24,7 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
           <div className="flex gap-2">
             {/* SEP NGSS Icon Badge */}
             <div className="bg-white px-3 py-1.5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5 group hover:border-green-300 transition-all duration-300">
-              <div className="bg-emerald-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-100 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <div className="bg-emerald-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-100 group-hover:scale-110 transition-transform duration-300 shrink-0">
                 <span className="material-symbols-outlined text-white text-lg">
                   science
                 </span>
@@ -41,7 +41,7 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
 
             {/* Kelompok Icon Badge */}
             <div className="bg-white px-3 py-1.5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5 group hover:border-blue-300 transition-all duration-300">
-              <div className="bg-blue-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <div className="bg-blue-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100 group-hover:scale-110 transition-transform duration-300 shrink-0">
                 <span className="material-symbols-outlined text-white text-lg">
                   groups
                 </span>
@@ -58,7 +58,7 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
 
             {/* AI Icon Badge */}
             <div className="bg-white px-3 py-1.5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5 group hover:border-purple-300 transition-all duration-300">
-              <div className="bg-purple-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-purple-100 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <div className="bg-purple-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-purple-100 group-hover:scale-110 transition-transform duration-300 shrink-0">
                 <span className="material-symbols-outlined text-white text-lg">
                   psychology
                 </span>
@@ -115,7 +115,7 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
                   </h3>
                   {tasks.map((task, i) => (
                     <div key={i} className="flex gap-2.5 group">
-                      <div className="flex-shrink-0 w-5 h-5 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 text-[9px] font-bold group-hover:bg-emerald-50 group-hover:border-emerald-200 group-hover:text-emerald-600 transition-all">
+                      <div className="shrink-0 w-5 h-5 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 text-[9px] font-bold group-hover:bg-emerald-50 group-hover:border-emerald-200 group-hover:text-emerald-600 transition-all">
                         {i + 1}
                       </div>
                       <p className="text-[10px] md:text-sm text-slate-700 leading-relaxed pt-0.5">
@@ -175,7 +175,7 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
               <div className="mt-4 pt-4 border-t border-slate-100">
                 <button
                   onClick={onNext}
-                  className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-linear-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   Selesaikan Tahap Ini
                   <span className="material-symbols-outlined text-sm">

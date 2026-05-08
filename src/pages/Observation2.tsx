@@ -172,7 +172,7 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
               <div className="mt-4">
                 <button
                   onClick={onNext}
-                  className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-green-500/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-green-500/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   Selesaikan Pembelajaran
                   <span className="material-symbols-outlined text-sm md:text-base">

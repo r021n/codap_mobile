@@ -5,6 +5,8 @@ import Instructions from "./pages/Instructions";
 import Observation from "./pages/Observation";
 import Observation2 from "./pages/Observation2";
 import Investigation from "./pages/Investigation";
+import Analysis from "./pages/Analysis";
+import Literacy from "./pages/Literacy";
 
 function App() {
   const [step, setStep] = useState<
@@ -14,6 +16,8 @@ function App() {
     | "observation"
     | "observation2"
     | "investigation"
+    | "analysis"
+    | "literacy"
     | "main"
   >("onboarding");
   const [userData, setUserData] = useState<any>(null);
@@ -40,6 +44,14 @@ function App() {
   };
 
   const handleInvestigationComplete = () => {
+    setStep("analysis");
+  };
+
+  const handleAnalysisComplete = () => {
+    setStep("literacy");
+  };
+
+  const handleLiteracyComplete = () => {
     setStep("main");
   };
 
@@ -49,6 +61,14 @@ function App() {
 
   const handleBackToObservation2 = () => {
     setStep("observation2");
+  };
+
+  const handleBackToInvestigation = () => {
+    setStep("investigation");
+  };
+
+  const handleBackToAnalysis = () => {
+    setStep("analysis");
   };
 
   if (step === "onboarding") {
@@ -81,6 +101,24 @@ function App() {
       <Investigation
         onNext={handleInvestigationComplete}
         onBack={handleBackToObservation2}
+      />
+    );
+  }
+
+  if (step === "analysis") {
+    return (
+      <Analysis
+        onNext={handleAnalysisComplete}
+        onBack={handleBackToInvestigation}
+      />
+    );
+  }
+
+  if (step === "literacy") {
+    return (
+      <Literacy
+        onNext={handleLiteracyComplete}
+        onBack={handleBackToAnalysis}
       />
     );
   }
