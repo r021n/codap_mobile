@@ -11,7 +11,7 @@ const Onboarding = ({ onStart }: OnboardingProps) => {
   return (
     <div className="w-screen h-screen bg-white flex flex-row overflow-hidden font-sans selection:bg-green-200 selection:text-green-900">
       {/* Left Column - Image Section (Fixed Full Height) */}
-      <div className="w-[40%] h-full bg-gradient-to-br from-green-50 to-emerald-100 flex justify-center items-center p-4 relative overflow-hidden flex-shrink-0 border-r border-green-50">
+      <div className="w-[40%] h-full bg-linear-to-br from-green-50 to-emerald-100 flex justify-center items-center p-4 relative overflow-hidden shrink-0 border-r border-green-50">
         {/* Decorative background shapes */}
         <div className="absolute top-[-10%] left-[-10%] w-48 h-48 sm:w-64 sm:h-64 bg-green-200/40 rounded-full blur-3xl"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-48 h-48 sm:w-64 sm:h-64 bg-emerald-200/40 rounded-full blur-3xl"></div>
@@ -32,7 +32,7 @@ const Onboarding = ({ onStart }: OnboardingProps) => {
           </div>
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-slate-800 leading-[1.1]">
             Halo, selamat datang di <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-500">
+            <span className="bg-clip-text text-transparent bg-linear-to-r from-green-600 to-emerald-500">
               AirDataLabs
             </span>
           </h1>
@@ -96,7 +96,7 @@ const Onboarding = ({ onStart }: OnboardingProps) => {
               onClick={onStart}
               className={`px-5 py-2 sm:px-8 sm:py-3 rounded-lg sm:rounded-xl font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-widest transition-all duration-300 shadow-sm ${
                 isReady
-                  ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-400 hover:to-emerald-500 hover:shadow-lg hover:shadow-green-500/40 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                  ? "bg-linear-to-r from-green-500 to-emerald-600 text-white hover:from-green-400 hover:to-emerald-500 hover:shadow-lg hover:shadow-green-500/40 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                   : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
             >

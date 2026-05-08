@@ -24,39 +24,52 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
   return (
     <div className="w-screen h-screen bg-slate-50 flex flex-col items-center p-4 md:p-6 overflow-hidden font-sans selection:bg-green-200 selection:text-green-900">
       <div className="w-full max-w-6xl h-full flex flex-col">
-        
         {/* Top Header Section */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex gap-3">
             {/* SEP NGSS Icon Badge */}
             <div className="bg-white px-3 py-1.5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5 group hover:border-green-300 transition-all duration-300">
               <div className="bg-green-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-green-100 group-hover:scale-110 transition-transform duration-300">
-                <span className="material-symbols-outlined text-white text-lg">science</span>
+                <span className="material-symbols-outlined text-white text-lg">
+                  science
+                </span>
               </div>
               <div className="flex flex-col pr-1">
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] leading-none mb-0.5">SEP NGSS</span>
-                <span className="text-[10px] font-bold text-slate-700 leading-none">Developing & Using Models</span>
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] leading-none mb-0.5">
+                  SEP NGSS
+                </span>
+                <span className="text-[10px] font-bold text-slate-700 leading-none">
+                  Developing & Using Models
+                </span>
               </div>
             </div>
 
             {/* Individu Icon Badge */}
             <div className="bg-white px-3 py-1.5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5 group hover:border-blue-300 transition-all duration-300">
               <div className="bg-blue-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100 group-hover:scale-110 transition-transform duration-300">
-                <span className="material-symbols-outlined text-white text-lg">person</span>
+                <span className="material-symbols-outlined text-white text-lg">
+                  person
+                </span>
               </div>
               <div className="flex flex-col pr-1">
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] leading-none mb-0.5">Tugas</span>
-                <span className="text-[10px] font-bold text-slate-700 leading-none">Individu</span>
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] leading-none mb-0.5">
+                  Tugas
+                </span>
+                <span className="text-[10px] font-bold text-slate-700 leading-none">
+                  Individu
+                </span>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
-             <button 
+            <button
               onClick={onBack}
               className="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
             >
-              <span className="material-symbols-outlined text-sm">arrow_back</span>
+              <span className="material-symbols-outlined text-sm">
+                arrow_back
+              </span>
             </button>
             <h1 className="text-xs md:text-sm font-black text-slate-700 uppercase tracking-widest">
               Tahap Observasi 2
@@ -66,7 +79,6 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
 
         {/* Main Content Area - Two Columns for Landscape */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0">
-          
           {/* Left Column: Multi-Video Section */}
           <div className="flex flex-col space-y-4 min-h-0">
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col flex-1 min-h-0">
@@ -76,7 +88,7 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
                   Amati cara kerja saintis & dampak pencemaran udara berikut!
                 </h2>
               </div>
-              
+
               {/* Video Player */}
               <div className="flex-1 bg-slate-900 rounded-xl overflow-hidden relative shadow-inner mb-3">
                 <iframe
@@ -87,7 +99,7 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
                   allowFullScreen
                 ></iframe>
               </div>
-              
+
               {/* Video Selector Tabs */}
               <div className="grid grid-cols-3 gap-2">
                 {videos.map((video, idx) => (
@@ -119,12 +131,14 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
 
               <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
                 <p className="text-[10px] md:text-xs text-slate-600 mb-4 font-medium italic leading-relaxed">
-                  Setelah kamu mengamati video tersebut, perhatikan model (mind map) yang telah kamu buat sebelumnya dan jawablah pertanyaan berikut!
+                  Setelah kamu mengamati video tersebut, perhatikan model (mind
+                  map) yang telah kamu buat sebelumnya dan jawablah pertanyaan
+                  berikut!
                 </p>
-                
+
                 {questions.map((q, i) => (
                   <div key={i} className="flex gap-3 group">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-xs font-bold group-hover:bg-green-100 group-hover:text-green-600 transition-colors">
+                    <div className="shrink-0 w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-xs font-bold group-hover:bg-green-100 group-hover:text-green-600 transition-colors">
                       {i + 1}
                     </div>
                     <p className="text-[10px] md:text-xs text-slate-700 leading-relaxed pt-0.5">
@@ -134,13 +148,13 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
                 ))}
 
                 {/* Google Form Link Card */}
-                <div className="mt-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-xl">
+                <div className="mt-6 p-4 bg-linear-to-br from-green-50 to-emerald-50 border border-green-100 rounded-xl">
                   <p className="text-[9px] md:text-[10px] font-bold text-green-800 mb-2 uppercase tracking-wider">
                     Tautan Pengumpulan Tugas LKPD 2
                   </p>
-                  <a 
-                    href="https://forms.gle/maPg1qzZnj2EwzeX6" 
-                    target="_blank" 
+                  <a
+                    href="https://forms.gle/maPg1qzZnj2EwzeX6"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-between bg-white p-3 rounded-lg border border-green-200 hover:border-green-400 hover:shadow-md transition-all group"
                   >
@@ -161,12 +175,13 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
                   className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-green-500/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   Selesaikan Pembelajaran
-                  <span className="material-symbols-outlined text-sm md:text-base">check_circle</span>
+                  <span className="material-symbols-outlined text-sm md:text-base">
+                    check_circle
+                  </span>
                 </button>
               </div>
             </div>
           </div>
-
         </div>
       </div>
 

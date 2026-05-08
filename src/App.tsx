@@ -4,9 +4,18 @@ import Registration from "./pages/Registration";
 import Instructions from "./pages/Instructions";
 import Observation from "./pages/Observation";
 import Observation2 from "./pages/Observation2";
+import Investigation from "./pages/Investigation";
 
 function App() {
-  const [step, setStep] = useState<"onboarding" | "registration" | "instructions" | "observation" | "observation2" | "main">("onboarding");
+  const [step, setStep] = useState<
+    | "onboarding"
+    | "registration"
+    | "instructions"
+    | "observation"
+    | "observation2"
+    | "investigation"
+    | "main"
+  >("onboarding");
   const [userData, setUserData] = useState<any>(null);
 
   const handleOnboardingComplete = () => {
@@ -27,11 +36,19 @@ function App() {
   };
 
   const handleObservation2Complete = () => {
+    setStep("investigation");
+  };
+
+  const handleInvestigationComplete = () => {
     setStep("main");
   };
 
   const handleBackToObservation = () => {
     setStep("observation");
+  };
+
+  const handleBackToObservation2 = () => {
+    setStep("observation2");
   };
 
   if (step === "onboarding") {
@@ -51,7 +68,21 @@ function App() {
   }
 
   if (step === "observation2") {
-    return <Observation2 onNext={handleObservation2Complete} onBack={handleBackToObservation} />;
+    return (
+      <Observation2
+        onNext={handleObservation2Complete}
+        onBack={handleBackToObservation}
+      />
+    );
+  }
+
+  if (step === "investigation") {
+    return (
+      <Investigation
+        onNext={handleInvestigationComplete}
+        onBack={handleBackToObservation2}
+      />
+    );
   }
 
   return (
@@ -62,11 +93,19 @@ function App() {
           <span className="text-green-600">{userData?.fullName}</span>!
         </h1>
         <p className="text-slate-600 mb-6">
-          Kamu telah terdaftar sebagai siswa kelas <span className="font-bold text-slate-800">{userData?.className}</span> dengan nomor presensi <span className="font-bold text-slate-800">{userData?.attendanceNumber}</span>.
+          Kamu telah terdaftar sebagai siswa kelas{" "}
+          <span className="font-bold text-slate-800">
+            {userData?.className}
+          </span>{" "}
+          dengan nomor presensi{" "}
+          <span className="font-bold text-slate-800">
+            {userData?.attendanceNumber}
+          </span>
+          .
         </p>
-        <button 
+        <button
           onClick={() => alert("Mulai Pembelajaran!")}
-          className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg shadow-green-200 hover:-translate-y-1 transition-all"
+          className="w-full py-4 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg shadow-green-200 hover:-translate-y-1 transition-all"
         >
           Mulai Belajar
         </button>
@@ -76,4 +115,3 @@ function App() {
 }
 
 export default App;
-

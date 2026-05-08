@@ -38,10 +38,7 @@ const Registration = ({ onComplete }: RegistrationProps) => {
     <div className="w-screen h-screen bg-white flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden font-sans selection:bg-green-200 selection:text-green-900">
       {/* Content Container - Constrained to prevent overflow */}
       <div className="w-full max-w-2xl max-h-full flex flex-col justify-center">
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-3 w-full"
-        >
+        <form onSubmit={handleSubmit} className="space-y-3 w-full">
           {/* Header - Compact */}
           <div className="mb-4 flex items-center">
             <div className="bg-green-500 px-4 py-2 rounded-lg flex items-center shadow-sm">
@@ -154,7 +151,7 @@ const Registration = ({ onComplete }: RegistrationProps) => {
               disabled={!isFormValid}
               className={`w-full py-3 rounded-lg font-bold text-[9px] uppercase tracking-widest transition-all duration-300 shadow-sm ${
                 isFormValid
-                  ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-400 hover:to-emerald-500 hover:shadow-lg hover:shadow-green-500/40 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                  ? "bg-linear-to-r from-green-500 to-emerald-600 text-white hover:from-green-400 hover:to-emerald-500 hover:shadow-lg hover:shadow-green-500/40 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                   : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
             >
