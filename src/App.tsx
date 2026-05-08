@@ -7,6 +7,10 @@ import Observation2 from "./pages/Observation2";
 import Investigation from "./pages/Investigation";
 import Analysis from "./pages/Analysis";
 import Literacy from "./pages/Literacy";
+import Literacy2 from "./pages/Literacy2";
+import Literacy3 from "./pages/Literacy3";
+import Literacy4 from "./pages/Literacy4";
+import Literacy5 from "./pages/Literacy5";
 
 function App() {
   const [step, setStep] = useState<
@@ -18,6 +22,10 @@ function App() {
     | "investigation"
     | "analysis"
     | "literacy"
+    | "literacy2"
+    | "literacy3"
+    | "literacy4"
+    | "literacy5"
     | "main"
   >("onboarding");
   const [userData, setUserData] = useState<any>(null);
@@ -52,7 +60,39 @@ function App() {
   };
 
   const handleLiteracyComplete = () => {
+    setStep("literacy2");
+  };
+
+  const handleLiteracy2Complete = () => {
+    setStep("literacy3");
+  };
+
+  const handleLiteracy3Complete = () => {
+    setStep("literacy4");
+  };
+
+  const handleLiteracy4Complete = () => {
+    setStep("literacy5");
+  };
+
+  const handleLiteracy5Complete = () => {
     setStep("main");
+  };
+
+  const handleBackToLiteracy4 = () => {
+    setStep("literacy4");
+  };
+
+  const handleBackToLiteracy3 = () => {
+    setStep("literacy3");
+  };
+
+  const handleBackToLiteracy2 = () => {
+    setStep("literacy2");
+  };
+
+  const handleBackToLiteracy = () => {
+    setStep("literacy");
   };
 
   const handleBackToObservation = () => {
@@ -119,6 +159,42 @@ function App() {
       <Literacy
         onNext={handleLiteracyComplete}
         onBack={handleBackToAnalysis}
+      />
+    );
+  }
+
+  if (step === "literacy2") {
+    return (
+      <Literacy2
+        onNext={handleLiteracy2Complete}
+        onBack={handleBackToLiteracy}
+      />
+    );
+  }
+
+  if (step === "literacy3") {
+    return (
+      <Literacy3
+        onNext={handleLiteracy3Complete}
+        onBack={handleBackToLiteracy2}
+      />
+    );
+  }
+
+  if (step === "literacy4") {
+    return (
+      <Literacy4
+        onNext={handleLiteracy4Complete}
+        onBack={handleBackToLiteracy3}
+      />
+    );
+  }
+
+  if (step === "literacy5") {
+    return (
+      <Literacy5
+        onNext={handleLiteracy5Complete}
+        onBack={handleBackToLiteracy4}
       />
     );
   }
