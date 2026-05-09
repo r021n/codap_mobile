@@ -14,43 +14,43 @@ const Observation: React.FC<ObservationProps> = ({ onNext }) => {
   ];
 
   return (
-    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
+    <div className="w-screen h-screen bg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
       {/* Top Header Section */}
       <div className="flex justify-between items-center mb-2 shrink-0">
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
           {/* SEP NGSS Icon Badge */}
-          <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300">
+          <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300 shrink-0">
             <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
               science
             </span>
             <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
-              <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.1em] leading-tight mb-0.5">
+              <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-widest leading-tight mb-0.5 whitespace-nowrap">
                 SEP NGSS
               </span>
-              <span className="text-[10px] font-bold text-[#0A110B] leading-tight">
+              <span className="text-[10px] font-bold text-[#0A110B] leading-tight whitespace-nowrap">
                 Asking Questions
               </span>
             </div>
           </div>
 
           {/* Individu Icon Badge */}
-          <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300">
+          <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300 shrink-0">
             <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
               person
             </span>
             <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
-              <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.1em] leading-tight mb-0.5">
+              <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-widest leading-tight mb-0.5 whitespace-nowrap">
                 Tugas
               </span>
-              <span className="text-[10px] font-bold text-[#0A110B] leading-tight">
+              <span className="text-[10px] font-bold text-[#0A110B] leading-tight whitespace-nowrap">
                 Individu
               </span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm">
-          <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest">
+        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2">
+          <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest whitespace-nowrap">
             Tahap Observasi
           </h1>
         </div>
@@ -119,7 +119,7 @@ const Observation: React.FC<ObservationProps> = ({ onNext }) => {
                   <div className="shrink-0 text-[#528C46] text-xs font-black pt-[2px]">
                     {i + 1}.
                   </div>
-                  <p className="text-[12px] text-[#0A110B] leading-relaxed pt-[1px] font-medium">
+                  <p className="text-[12px] text-[#0A110B] leading-relaxed pt-px font-medium">
                     {q}
                   </p>
                 </div>
@@ -152,7 +152,7 @@ const Observation: React.FC<ObservationProps> = ({ onNext }) => {
                 onClick={onNext}
                 className="w-full py-2.5 bg-[#528C46] text-white rounded-full font-bold text-[11px] uppercase tracking-widest hover:bg-[#0A110B] hover:text-[#C6E67D] transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm"
               >
-                Lanjutkan Ke Tahap Berikutnya
+                Ke Tahap Berikutnya
                 <span className="material-symbols-outlined text-[14px]">
                   arrow_forward
                 </span>
@@ -175,6 +175,13 @@ const Observation: React.FC<ObservationProps> = ({ onNext }) => {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #528C46;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>

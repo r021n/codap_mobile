@@ -22,52 +22,54 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
   ];
 
   return (
-    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
+    <div className="w-screen h-screen bg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
       {/* Top Header Section */}
-      <div className="flex justify-between items-center mb-2 shrink-0">
-        <div className="flex gap-2 items-center">
+      <div className="flex justify-between items-center mb-2 shrink-0 gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <button
             onClick={onBack}
-            className="w-8 h-8 bg-white rounded-full border border-[#C6E67D]/30 shadow-sm flex items-center justify-center hover:bg-[#528C46] group transition-all duration-300 mr-1"
+            className="w-8 h-8 bg-white rounded-full border border-[#C6E67D]/30 shadow-sm flex items-center justify-center hover:bg-[#528C46] group transition-all duration-300 shrink-0"
           >
             <span className="material-symbols-outlined text-[18px] text-[#528C46] group-hover:text-white transition-colors">
               arrow_back
             </span>
           </button>
 
-          {/* SEP NGSS Icon Badge */}
-          <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300">
-            <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
-              science
-            </span>
-            <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
-              <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.1em] leading-tight mb-0.5">
-                SEP NGSS
+          <div className="flex gap-2 items-center overflow-x-auto no-scrollbar flex-1">
+            {/* SEP NGSS Icon Badge */}
+            <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300 shrink-0">
+              <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
+                science
               </span>
-              <span className="text-[10px] font-bold text-[#0A110B] leading-tight">
-                Developing Models
-              </span>
+              <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
+                <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-widest leading-tight mb-0.5 whitespace-nowrap">
+                  SEP NGSS
+                </span>
+                <span className="text-[10px] font-bold text-[#0A110B] leading-tight whitespace-nowrap">
+                  Developing & Using Models
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* Tugas Icon Badge */}
-          <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300">
-            <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
-              person
-            </span>
-            <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
-              <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.1em] leading-tight mb-0.5">
-                Tugas
+            {/* Tugas Icon Badge */}
+            <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300 shrink-0">
+              <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
+                person
               </span>
-              <span className="text-[10px] font-bold text-[#0A110B] leading-tight">
-                Individu
-              </span>
+              <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
+                <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-widest leading-tight mb-0.5 whitespace-nowrap">
+                  Tugas
+                </span>
+                <span className="text-[10px] font-bold text-[#0A110B] leading-tight whitespace-nowrap">
+                  Individu
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm">
-          <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest">
+        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2">
+          <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest whitespace-nowrap">
             Tahap Observasi 2
           </h1>
         </div>
@@ -98,7 +100,7 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
 
             {/* Video Selection Buttons */}
             <div className="grid grid-cols-3 gap-2 shrink-0">
-              {videos.map((vid, idx) => (
+              {videos.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveVideoIndex(idx)}
@@ -136,7 +138,7 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
                   <div className="shrink-0 text-[#528C46] text-xs font-black pt-[2px]">
                     {i + 1}.
                   </div>
-                  <p className="text-[12px] text-[#0A110B] leading-relaxed pt-[1px] font-medium">
+                  <p className="text-[12px] text-[#0A110B] leading-relaxed pt-px font-medium">
                     {q}
                   </p>
                 </div>
@@ -169,9 +171,9 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
                 onClick={onNext}
                 className="w-full py-2.5 bg-[#528C46] text-white rounded-full font-bold text-[11px] uppercase tracking-widest shadow-sm hover:bg-[#0A110B] hover:text-[#C6E67D] active:translate-y-0.5 transition-all flex items-center justify-center gap-2"
               >
-                Selesaikan Observasi
+                Ke Tahap Berikutnya
                 <span className="material-symbols-outlined text-[14px]">
-                  check_circle
+                  arrow_forward
                 </span>
               </button>
             </div>
@@ -192,6 +194,13 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #528C46;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>

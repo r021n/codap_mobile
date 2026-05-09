@@ -18,7 +18,7 @@ const Instructions: React.FC<InstructionsProps> = ({ onNext }) => {
   ];
 
   return (
-    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B]">
+    <div className="w-screen h-screen bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B]">
       {/* Left Column - Visual/Greeting */}
       <div className="w-[40%] h-full bg-[#C6E67D] p-6 relative flex flex-col justify-center items-start overflow-hidden shrink-0 rounded-r-3xl shadow-sm">
         {/* Decorative background shapes */}

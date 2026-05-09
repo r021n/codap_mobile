@@ -16,51 +16,53 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
   ];
 
   return (
-    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
+    <div className="w-screen h-screen bg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
       {/* Top Header Section */}
-      <div className="flex justify-between items-center mb-2 shrink-0">
-        <div className="flex gap-2 items-center">
-          <button 
-            onClick={onBack} 
-            className="w-8 h-8 bg-white rounded-full border border-[#C6E67D]/30 shadow-sm flex items-center justify-center hover:bg-[#528C46] group transition-all duration-300 mr-1"
+      <div className="flex justify-between items-center mb-2 shrink-0 gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <button
+            onClick={onBack}
+            className="w-8 h-8 bg-white rounded-full border border-[#C6E67D]/30 shadow-sm flex items-center justify-center hover:bg-[#528C46] group transition-all duration-300 shrink-0"
           >
             <span className="material-symbols-outlined text-[18px] text-[#528C46] group-hover:text-white transition-colors">
               arrow_back
             </span>
           </button>
 
-          {/* Badges */}
-          <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300">
-            <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
-              gavel
-            </span>
-            <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
-              <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.1em] leading-tight mb-0.5">
-                SEP NGSS
+          <div className="flex gap-2 items-center overflow-x-auto no-scrollbar flex-1">
+            {/* Badges */}
+            <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300 shrink-0">
+              <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
+                gavel
               </span>
-              <span className="text-[10px] font-bold text-[#0A110B] leading-tight">
-                Argument from Evidence
-              </span>
+              <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
+                <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-widest leading-tight mb-0.5 whitespace-nowrap">
+                  SEP NGSS
+                </span>
+                <span className="text-[10px] font-bold text-[#0A110B] leading-tight whitespace-nowrap">
+                  Engaging in Argument From Evidence
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300">
-            <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
-              person
-            </span>
-            <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
-              <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-[0.1em] leading-tight mb-0.5">
-                Tugas
+            <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300 shrink-0">
+              <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
+                person
               </span>
-              <span className="text-[10px] font-bold text-[#0A110B] leading-tight">
-                Individu
-              </span>
+              <div className="flex flex-col pr-1 border-l border-[#C6E67D]/30 pl-2">
+                <span className="text-[8px] font-black text-[#6B7280] uppercase tracking-widest leading-tight mb-0.5 whitespace-nowrap">
+                  Tugas
+                </span>
+                <span className="text-[10px] font-bold text-[#0A110B] leading-tight whitespace-nowrap">
+                  Individu
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm">
-          <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest">
+        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2">
+          <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest whitespace-nowrap">
             Literasi Data
           </h1>
         </div>
@@ -79,22 +81,27 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
                 </h2>
               </div>
               <div className="bg-[#C6E67D]/20 px-3 py-1 rounded-full border border-[#C6E67D]/40">
-                <span className="text-[10px] font-black text-[#528C46] uppercase tracking-wider">Evidence & Argument</span>
+                <span className="text-[10px] font-black text-[#528C46] uppercase tracking-wider">
+                  Evidence & Argument
+                </span>
               </div>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto pr-3 space-y-5 custom-scrollbar">
               <p className="text-sm text-[#6B7280] font-medium italic leading-relaxed">
-                Pada tahap ini, kamu diminta untuk menelaah jurnal artikel terkait dampak pencemaran udara. Setelahnya kamu diminta untuk membuat model final dari remodel rumusan masalah yang sudah kamu buat.
+                Pada tahap ini, kamu diminta untuk menelaah jurnal artikel
+                terkait dampak pencemaran udara. Setelahnya kamu diminta untuk
+                membuat model final dari remodel rumusan masalah yang sudah kamu
+                buat.
               </p>
-              
+
               <div className="space-y-4">
                 {tasks.map((task, i) => (
                   <div key={i} className="flex gap-4 group">
                     <div className="shrink-0 text-[#528C46] text-sm font-black pt-[2px]">
                       {i + 1}.
                     </div>
-                    <p className="text-[14px] text-[#0A110B] leading-relaxed pt-[1px] font-medium">
+                    <p className="text-[14px] text-[#0A110B] leading-relaxed pt-px font-medium">
                       {task}
                     </p>
                   </div>
@@ -107,38 +114,45 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
         {/* Right Column: Compact Actions (35%) */}
         <div className="w-[35%] flex flex-col gap-3 min-h-0">
           <div className="bg-white p-4 rounded-2xl border border-[#C6E67D]/30 shadow-sm flex flex-col flex-1 min-h-0">
-            <h2 className="text-sm font-bold text-[#0A110B] mb-3 shrink-0">Aktivitas & Jurnal</h2>
-            
+            <h2 className="text-sm font-bold text-[#0A110B] mb-3 shrink-0">
+              Aktivitas & Jurnal
+            </h2>
+
             <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar">
-              <button 
-                onClick={() => setShowLinkModal(true)} 
+              <button
+                onClick={() => setShowLinkModal(true)}
                 className="w-full p-6 flex items-center gap-5 bg-[#FDFCF8] border border-[#C6E67D]/40 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group shrink-0"
               >
                 <span className="material-symbols-outlined text-4xl text-[#528C46] group-hover:scale-110 transition-transform duration-300">
                   library_books
                 </span>
                 <div className="text-left">
-                  <p className="text-sm font-bold text-[#0A110B]">Tautan Jurnal & Tugas</p>
-                  <p className="text-[10px] text-[#6B7280] uppercase tracking-wider">Resource & LKPD 8</p>
+                  <p className="text-sm font-bold text-[#0A110B]">
+                    Tautan Jurnal & Tugas
+                  </p>
+                  <p className="text-[10px] text-[#6B7280] uppercase tracking-wider">
+                    Resource & LKPD 8
+                  </p>
                 </div>
               </button>
 
               <div className="p-4 bg-[#C6E67D]/10 rounded-xl border border-[#C6E67D]/30 mt-auto">
                 <p className="text-[11px] text-[#528C46] leading-relaxed font-medium italic text-center">
-                  Gunakan bukti dari jurnal untuk mendukung model rumusan masalahmu.
+                  Gunakan bukti dari jurnal untuk mendukung model rumusan
+                  masalahmu.
                 </p>
               </div>
             </div>
 
             {/* Action Button */}
             <div className="mt-4 shrink-0">
-              <button 
-                onClick={onNext} 
+              <button
+                onClick={onNext}
                 className="w-full py-3 bg-[#0A110B] text-white rounded-full font-bold text-[11px] uppercase tracking-widest shadow-md hover:bg-[#528C46] active:translate-y-0.5 transition-all flex items-center justify-center gap-2"
               >
-                Selesaikan Literasi
+                Ke Tahap Berikutnya
                 <span className="material-symbols-outlined text-[14px]">
-                  verified_user
+                  arrow_forward
                 </span>
               </button>
             </div>
@@ -150,33 +164,64 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
       {showLinkModal && (
         <div className="fixed inset-0 bg-[#0A110B]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#FDFCF8] w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-[#C6E67D]/30 animate-in zoom-in-95 duration-300">
-             <div className="p-4 border-b border-[#C6E67D]/30 flex justify-between items-center bg-white">
-                <div className="flex items-center gap-3">
-                   <span className="material-symbols-outlined text-2xl text-[#528C46]">library_books</span>
-                   <h3 className="font-bold text-[#0A110B] text-sm">Tautan Jurnal & Tugas</h3>
+            <div className="p-4 border-b border-[#C6E67D]/30 flex justify-between items-center bg-white">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-2xl text-[#528C46]">
+                  library_books
+                </span>
+                <h3 className="font-bold text-[#0A110B] text-sm">
+                  Tautan Jurnal & Tugas
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowLinkModal(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-[#6B7280] hover:bg-gray-100 transition-colors"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+            <div className="p-4 flex flex-col gap-3">
+              <a
+                href="https://drive.google.com/file/d/1PAF90eMoL4Ae9bWfJ810n940_4i4XfRO/view?usp=drive_link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group"
+              >
+                <span className="material-symbols-outlined text-2xl text-[#528C46]">
+                  article
+                </span>
+                <div className="flex-1">
+                  <p className="font-bold text-[#0A110B] text-sm">
+                    Tautan Jurnal Artikel
+                  </p>
+                  <p className="text-xs text-[#6B7280]">drive.google.com/...</p>
                 </div>
-                <button onClick={() => setShowLinkModal(false)} className="w-8 h-8 rounded-full flex items-center justify-center text-[#6B7280] hover:bg-gray-100 transition-colors">
-                  <span className="material-symbols-outlined text-xl">close</span>
-                </button>
-             </div>
-             <div className="p-4 flex flex-col gap-3">
-                <a href="https://drive.google.com/file/d/1PAF90eMoL4Ae9bWfJ810n940_4i4XfRO/view?usp=drive_link" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group">
-                   <span className="material-symbols-outlined text-2xl text-[#528C46]">article</span>
-                   <div className="flex-1">
-                     <p className="font-bold text-[#0A110B] text-sm">Tautan Jurnal Artikel</p>
-                     <p className="text-xs text-[#6B7280]">drive.google.com/...</p>
-                   </div>
-                   <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">open_in_new</span>
-                </a>
-                <a href="https://forms.gle/maPg1qzZnj2EwzeX6" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group">
-                   <span className="material-symbols-outlined text-2xl text-[#528C46]">assignment_turned_in</span>
-                   <div className="flex-1">
-                     <p className="font-bold text-[#0A110B] text-sm">Tugas LKPD 8</p>
-                     <p className="text-xs text-[#6B7280]">forms.gle/maPg1qzZnj2EwzeX6</p>
-                   </div>
-                   <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">open_in_new</span>
-                </a>
-             </div>
+                <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">
+                  open_in_new
+                </span>
+              </a>
+              <a
+                href="https://forms.gle/maPg1qzZnj2EwzeX6"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group"
+              >
+                <span className="material-symbols-outlined text-2xl text-[#528C46]">
+                  assignment_turned_in
+                </span>
+                <div className="flex-1">
+                  <p className="font-bold text-[#0A110B] text-sm">
+                    Tugas LKPD 8
+                  </p>
+                  <p className="text-xs text-[#6B7280]">
+                    forms.gle/maPg1qzZnj2EwzeX6
+                  </p>
+                </div>
+                <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">
+                  open_in_new
+                </span>
+              </a>
+            </div>
           </div>
         </div>
       )}
@@ -194,6 +239,13 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #528C46;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>
