@@ -46,18 +46,18 @@ const Registration = ({ onComplete }: RegistrationProps) => {
           <div className="inline-block self-start px-3 py-1 bg-[#528C46] text-white text-[10px] font-bold rounded-full tracking-wider uppercase">
             Langkah 1
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A110B] leading-tight">
+          <h1 className="text-3xl font-extrabold text-[#0A110B] leading-tight">
             Lengkapi <br /> Identitasmu
           </h1>
-          <p className="text-[10px] sm:text-xs text-[#0A110B]/80 leading-snug max-w-[90%] mt-1">
+          <p className="text-xs text-[#0A110B]/80 leading-snug max-w-[90%] mt-1">
             Sebelum memulai observasi sebagai Air Quality Specialist, mari isi data diri terlebih dahulu.
           </p>
         </div>
       </div>
 
       {/* Right Column - Form Container */}
-      <div className="w-[60%] h-full flex flex-col justify-center p-4 sm:p-6 overflow-hidden">
-        <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto flex flex-col gap-2 sm:gap-3">
+      <div className="w-[60%] h-full flex flex-col justify-center p-5 overflow-hidden">
+        <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-x-3 gap-y-2">
             {/* Nama Lengkap - Full Width */}
             <div className="col-span-2 flex flex-col gap-0.5">
@@ -70,7 +70,7 @@ const Registration = ({ onComplete }: RegistrationProps) => {
                 value={formData.fullName}
                 onChange={handleChange}
                 placeholder="Masukkan nama lengkap"
-                className="w-full px-4 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-[10px] sm:text-xs text-[#0A110B]"
+                className="w-full px-4 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-xs text-[#0A110B]"
                 required
               />
             </div>
@@ -86,7 +86,7 @@ const Registration = ({ onComplete }: RegistrationProps) => {
                     key={option}
                     type="button"
                     onClick={() => setFormData((prev) => ({ ...prev, gender: option }))}
-                    className={`flex-1 py-1.5 sm:py-2 rounded-full border text-[9px] sm:text-[10px] font-bold transition-all ${
+                    className={`flex-1 py-2 rounded-full border text-[10px] font-bold transition-all ${
                       formData.gender === option
                         ? "bg-[#528C46] border-[#528C46] text-white shadow-sm"
                         : "bg-white border-gray-200 text-[#6B7280] hover:border-[#C6E67D]"
@@ -110,7 +110,7 @@ const Registration = ({ onComplete }: RegistrationProps) => {
                   value={formData.age}
                   onChange={handleChange}
                   placeholder="0"
-                  className="w-full pl-4 pr-10 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-[10px] sm:text-xs text-[#0A110B]"
+                  className="w-full pl-4 pr-10 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-xs text-[#0A110B]"
                   required
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-[#6B7280]">
@@ -130,7 +130,7 @@ const Registration = ({ onComplete }: RegistrationProps) => {
                 value={formData.className}
                 onChange={handleChange}
                 placeholder="XE A"
-                className="w-full px-4 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-[10px] sm:text-xs text-[#0A110B]"
+                className="w-full px-4 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-xs text-[#0A110B]"
                 required
               />
             </div>
@@ -146,7 +146,7 @@ const Registration = ({ onComplete }: RegistrationProps) => {
                 value={formData.attendanceNumber}
                 onChange={handleChange}
                 placeholder="Contoh: 1"
-                className="w-full px-4 py-1.5 sm:py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-[10px] sm:text-xs text-[#0A110B]"
+                className="w-full px-4 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-[#528C46] focus:ring-1 focus:ring-[#528C46] transition-all text-xs text-[#0A110B]"
                 required
               />
             </div>
@@ -157,7 +157,7 @@ const Registration = ({ onComplete }: RegistrationProps) => {
             <button
               type="submit"
               disabled={!isFormValid}
-              className={`w-full py-2 sm:py-2.5 rounded-full font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all duration-300 shadow-sm ${
+              className={`w-full py-2.5 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 shadow-sm ${
                 isFormValid
                   ? "bg-[#0A110B] text-white hover:bg-black active:translate-y-0.5 cursor-pointer"
                   : "bg-[#0A110B]/20 text-[#0A110B]/50 cursor-not-allowed"

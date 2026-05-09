@@ -100,7 +100,7 @@ const Literacy: React.FC<LiteracyProps> = ({ onNext, onBack }) => {
       <div className="flex-1 flex gap-3 min-h-0">
         {/* Left Column: Literacy Training (65%) */}
         <div className="w-[65%] flex flex-col gap-2 min-h-0">
-          <div className="bg-white p-3 md:p-5 rounded-2xl border border-[#C6E67D]/30 shadow-sm flex flex-col flex-1 min-h-0">
+          <div className="bg-white p-4 rounded-2xl border border-[#C6E67D]/30 shadow-sm flex flex-col flex-1 min-h-0">
             <div className="flex justify-between items-center mb-4 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-1 h-6 bg-[#528C46] rounded-full"></div>
@@ -255,7 +255,7 @@ const Literacy: React.FC<LiteracyProps> = ({ onNext, onBack }) => {
                 </button>
              </div>
              
-             <div className="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto custom-scrollbar">
+             <div className="flex-1 p-6 grid grid-cols-2 gap-6 overflow-y-auto custom-scrollbar">
                 {/* Left side: Guide Steps */}
                 <div className="flex flex-col bg-white rounded-2xl border border-[#C6E67D]/30 p-5 shadow-sm">
                   <p className="text-xs font-black text-[#528C46] uppercase tracking-widest mb-4 flex items-center gap-2">

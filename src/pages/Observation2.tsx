@@ -117,7 +117,7 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
 
         {/* Right Column: Questions & Action (55%) */}
         <div className="w-[55%] flex flex-col gap-2 min-h-0">
-          <div className="bg-white p-3 md:p-4 rounded-2xl border border-[#C6E67D]/30 shadow-sm flex flex-col flex-1 min-h-0 relative">
+          <div className="bg-white p-4 rounded-2xl border border-[#C6E67D]/30 shadow-sm flex flex-col flex-1 min-h-0 relative">
             <div className="flex items-center gap-2 mb-3 shrink-0">
               <div className="w-1 h-5 bg-[#528C46] rounded-full"></div>
               <h2 className="text-sm font-bold text-[#0A110B] leading-tight">
