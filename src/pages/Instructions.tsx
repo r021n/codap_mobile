@@ -24,7 +24,7 @@ const Instructions: React.FC<InstructionsProps> = ({ onNext }) => {
         {/* Decorative background shapes */}
         <div className="absolute top-[-10%] left-[-10%] w-48 h-48 bg-white/30 rounded-full blur-2xl"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-48 h-48 bg-[#528C46]/20 rounded-full blur-2xl"></div>
-        
+
         <div className="relative z-10 flex flex-col gap-2">
           <div className="inline-block self-start px-3 py-1 bg-[#528C46] text-white text-[10px] font-bold rounded-full tracking-wider uppercase">
             Panduan
@@ -33,7 +33,8 @@ const Instructions: React.FC<InstructionsProps> = ({ onNext }) => {
             Petunjuk <br /> Penggunaan
           </h1>
           <p className="text-[9px] sm:text-[10px] text-[#0A110B]/80 leading-snug max-w-[90%] mt-1">
-            Kenali dan pahami fungsi setiap ikon di bawah ini untuk mempermudah navigasi dan pembelajaranmu.
+            Kenali dan pahami fungsi setiap ikon di bawah ini untuk mempermudah
+            navigasi dan pembelajaranmu.
           </p>
         </div>
       </div>
@@ -41,7 +42,6 @@ const Instructions: React.FC<InstructionsProps> = ({ onNext }) => {
       {/* Right Column - Icons Grid & Action */}
       <div className="w-[60%] h-full flex flex-col justify-center p-4 sm:p-6 overflow-hidden">
         <div className="w-full max-w-xl mx-auto flex flex-col h-full justify-between gap-2">
-          
           <div className="flex-1 flex flex-col justify-center min-h-0">
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {guideItems.map((item, index) => (

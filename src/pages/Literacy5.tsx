@@ -15,299 +15,137 @@ const Literacy5: React.FC<Literacy5Props> = ({ onNext, onBack }) => {
   ];
 
   return (
-    <div className="w-screen h-screen bg-slate-50 flex flex-col items-center p-2 md:p-6 overflow-y-auto font-sans selection:bg-blue-200 selection:text-blue-900">
-      <div className="w-full max-w-6xl min-h-full flex flex-col">
-        {/* Top Header Section */}
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex gap-2">
-            {/* SEP NGSS Icon Badge */}
-            <div className="bg-white px-3 py-1.5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5 group hover:border-blue-300 transition-all duration-300">
-              <div className="bg-blue-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                <span className="material-symbols-outlined text-white text-lg">
-                  campaign
-                </span>
-              </div>
-              <div className="flex flex-col pr-0.5 overflow-hidden">
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] leading-none mb-0.5">
-                  SEP NGSS
-                </span>
-                <span className="text-[10px] font-bold text-slate-700 leading-none truncate max-w-[150px] md:max-w-none">
-                  Obtaining, Evaluating, & Communicating Information
-                </span>
-              </div>
-            </div>
-
-            {/* Kelompok Icon Badge */}
-            <div className="bg-white px-3 py-1.5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5 group hover:border-indigo-300 transition-all duration-300">
-              <div className="bg-indigo-500 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                <span className="material-symbols-outlined text-white text-lg">
-                  smart_toy
-                </span>
-              </div>
-              <div className="flex flex-col pr-0.5">
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] leading-none mb-0.5">
-                  Kelompok
-                </span>
-                <span className="text-[10px] font-bold text-slate-700 leading-none">
-                  AI CODAP
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white px-3 py-1 rounded-xl border border-slate-200 shadow-sm flex items-center gap-2">
-            <button
-              onClick={onBack}
-              className="w-5 h-5 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-            >
-              <span className="material-symbols-outlined text-xs">
-                arrow_back
-              </span>
-            </button>
-            <h1 className="text-[9px] md:text-xs font-black text-slate-700 uppercase tracking-widest">
-              Literasi Data
-            </h1>
+    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B]">
+      {/* Left Column */}
+      <div className="w-[45%] h-full bg-[#C6E67D] p-4 flex flex-col relative overflow-hidden shrink-0 rounded-r-3xl shadow-sm">
+        <div className="absolute top-[-10%] left-[-10%] w-48 h-48 bg-white/30 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-48 h-48 bg-[#528C46]/20 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <div className="flex items-center gap-2 mb-2 relative z-10">
+          <button onClick={onBack} className="w-6 h-6 bg-white/50 rounded-full flex items-center justify-center hover:bg-white transition-colors">
+            <span className="material-symbols-outlined text-sm text-[#528C46]">arrow_back</span>
+          </button>
+          <div className="bg-[#528C46] px-3 py-1 rounded-full flex items-center shadow-sm">
+             <span className="text-[10px] font-bold text-white uppercase tracking-wider">Literasi Data</span>
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 grid grid-cols-[1fr_1.2fr] gap-3 md:gap-6 min-h-0">
-          {/* Left Column: Instructions */}
-          <div className="flex flex-col space-y-3 min-h-0">
-            <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col flex-1 min-h-0">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-1.5 h-5 bg-blue-500 rounded-full"></div>
-                  <h2 className="text-[11px] md:text-base font-bold text-slate-800 leading-tight">
-                    Pelatihan Literasi Data: Komunikasi
-                  </h2>
-                </div>
+        <div className="flex flex-wrap gap-1.5 mb-2 relative z-10">
+           {/* Badges */}
+           <div className="bg-[#FDFCF8]/90 backdrop-blur px-2 py-1 rounded-xl flex items-center gap-1.5 border border-[#528C46]/20 shadow-sm">
+             <div className="bg-[#528C46] w-5 h-5 rounded-md flex items-center justify-center"><span className="material-symbols-outlined text-white text-[12px]">campaign</span></div>
+             <div className="flex flex-col"><span className="text-[5px] font-bold text-[#528C46] uppercase leading-none mb-0.5">SEP NGSS</span><span className="text-[7px] font-bold text-[#0A110B] leading-none">Communicating Information</span></div>
+           </div>
+           <div className="bg-[#FDFCF8]/90 backdrop-blur px-2 py-1 rounded-xl flex items-center gap-1.5 border border-[#528C46]/20 shadow-sm">
+             <div className="bg-[#528C46] w-5 h-5 rounded-md flex items-center justify-center"><span className="material-symbols-outlined text-white text-[12px]">smart_toy</span></div>
+             <div className="flex flex-col"><span className="text-[5px] font-bold text-[#528C46] uppercase leading-none mb-0.5">Kelompok</span><span className="text-[7px] font-bold text-[#0A110B] leading-none">AI CODAP</span></div>
+           </div>
+        </div>
 
-                {/* Data Literacy Badge */}
-                <div className="bg-blue-50 px-3 py-1 rounded-full border border-blue-100 flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-blue-600 text-xs">
-                    forum
-                  </span>
-                  <span className="text-[8px] md:text-[9px] font-bold text-blue-700 uppercase tracking-tighter">
-                    Literasi Data: Communication
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <p className="text-[10px] md:text-sm text-slate-600 mb-3.5 leading-relaxed font-medium italic">
-                  Selamat, Kamu sudah berhasil pada tahap akhir untuk menjadi seorang Air Quality Specialist hebat! Sekarang kamu ditunjuk sebagai bagian dari Tim Satgas Komunikasi Lingkungan Provinsi Jawa Tengah. Gubernur memintamu untuk membuat media kampanye publik berupa poster. Poster ini harus memberitahu masyarakat mengenai kondisi udara terkini dan memberikan panduan nyata mengenai apa yang harus dilakukan (Mitigasi dan Adaptasi) berdasarkan hasil investigasi data yang baru saja kamu lakukan menggunakan CODAP.
-                </p>
-
-                <div className="space-y-2.5">
-                  <h3 className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Tugasmu pada tahap ini adalah:
-                  </h3>
-                  {tasks.map((task, i) => (
-                    <div key={i} className="flex gap-2.5 group">
-                      <div className="shrink-0 w-5 h-5 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 text-[9px] font-bold group-hover:bg-blue-50 group-hover:border-blue-200 group-hover:text-blue-600 transition-all">
-                        {i + 1}
-                      </div>
-                      <p className="text-[10px] md:text-sm text-slate-700 leading-relaxed pt-0.5">
-                        {task}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Interactive Buttons */}
-          <div className="flex flex-col space-y-3 min-h-0">
-            <div className="flex-1 bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col min-h-0">
-              <div className="flex-1 flex flex-col justify-start md:justify-center space-y-4 overflow-y-auto custom-scrollbar pr-1">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Links Modal Trigger */}
-                  <button
-                    onClick={() => setShowLinkModal(true)}
-                    className="flex flex-col items-center justify-center p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl hover:border-indigo-400 hover:bg-indigo-50 transition-all group min-h-[160px]"
-                  >
-                    <div className="w-16 h-16 rounded-2xl bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-100 mb-3 group-hover:scale-110 transition-transform">
-                      <span className="material-symbols-outlined text-3xl">
-                        add_task
-                      </span>
-                    </div>
-                    <span className="text-[11px] md:text-sm font-bold text-slate-700">
-                      Tautan Tugas & Refleksi
-                    </span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase tracking-widest text-center">
-                      LKPD 9, Poster, Refleksi & Posttest
-                    </span>
-                  </button>
-
-                  <div className="hidden md:flex flex-col items-center justify-center p-6 bg-slate-50/50 border-2 border-slate-100 rounded-2xl opacity-60">
-                    <div className="w-16 h-16 rounded-2xl bg-slate-200 flex items-center justify-center text-slate-400 mb-3">
-                      <span className="material-symbols-outlined text-3xl">
-                        workspace_premium
-                      </span>
-                    </div>
-                    <span className="text-[11px] md:text-sm font-bold text-slate-500">
-                      Sertifikat Kelulusan
-                    </span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase tracking-widest">
-                      Coming Soon
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Button */}
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <button
-                  onClick={onNext}
-                  className="w-full py-3 bg-linear-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-blue-500/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2"
-                >
-                  Selesaikan Seluruh Pembelajaran
-                  <span className="material-symbols-outlined text-sm">
-                    celebration
-                  </span>
-                </button>
-              </div>
-            </div>
-          </div>
+        <div className="flex-1 flex flex-col bg-[#FDFCF8] rounded-2xl p-3 border border-[#528C46]/20 shadow-sm min-h-0 relative z-10">
+           <div className="flex justify-between items-start mb-1">
+             <h2 className="text-[11px] font-extrabold text-[#0A110B] leading-tight">Pelatihan Literasi Data: Komunikasi</h2>
+             <div className="bg-[#C6E67D]/30 px-2 py-0.5 rounded-full border border-[#528C46]/30">
+               <span className="text-[7px] font-bold text-[#528C46] uppercase">Communication</span>
+             </div>
+           </div>
+           <p className="text-[9px] text-[#6B7280] mb-2 leading-snug italic">Selamat, Kamu sudah berhasil pada tahap akhir untuk menjadi seorang Air Quality Specialist hebat! Sekarang kamu ditunjuk sebagai bagian dari Tim Satgas Komunikasi Lingkungan Provinsi Jawa Tengah. Gubernur memintamu untuk membuat media kampanye publik berupa poster. Poster ini harus memberitahu masyarakat mengenai kondisi udara terkini dan memberikan panduan nyata mengenai apa yang harus dilakukan (Mitigasi dan Adaptasi) berdasarkan hasil investigasi data yang baru saja kamu lakukan menggunakan CODAP.</p>
+           
+           <div className="flex-1 flex flex-col justify-around min-h-0">
+               {tasks.map((task, i) => (
+                 <div key={i} className="flex gap-2 items-start">
+                   <div className="shrink-0 w-4 h-4 rounded-full bg-[#C6E67D]/30 flex items-center justify-center text-[#528C46] text-[8px] font-bold mt-0.5">{i+1}</div>
+                   <p className="text-[9px] text-[#0A110B] leading-snug">
+                     {task}
+                   </p>
+                 </div>
+               ))}
+           </div>
         </div>
       </div>
 
-      {/* Links & Submissions Modal */}
+      {/* Right Column - Interactions */}
+      <div className="w-[55%] h-full flex flex-col p-4 overflow-hidden">
+         <div className="flex-1 flex flex-col bg-white rounded-3xl border border-[#C6E67D]/30 shadow-sm p-4 min-h-0 justify-between">
+            <h2 className="text-sm font-extrabold text-[#0A110B] mb-2">Aktivitas & Tugas</h2>
+            <p className="text-[10px] text-[#6B7280] mb-4 leading-snug">Gunakan menu di bawah ini untuk mengakses tautan tugas akhir.</p>
+            
+            <div className="flex-1 flex items-center justify-center gap-4">
+               <button onClick={() => setShowLinkModal(true)} className="flex-1 h-36 flex flex-col items-center justify-center bg-[#FDFCF8] border-2 border-dashed border-[#C6E67D] rounded-3xl hover:border-[#528C46] transition-all group">
+                  <div className="w-14 h-14 rounded-2xl bg-[#C6E67D]/30 flex items-center justify-center text-[#528C46] mb-3 group-hover:scale-110 transition-transform">
+                     <span className="material-symbols-outlined text-3xl">add_task</span>
+                  </div>
+                  <span className="text-[12px] font-bold text-[#0A110B]">Tautan Tugas & Refleksi</span>
+                  <span className="text-[9px] text-[#6B7280] mt-0.5 uppercase tracking-wider">LKPD 9, Poster, Refleksi</span>
+               </button>
+
+               <div className="flex-1 h-36 flex flex-col items-center justify-center bg-[#FDFCF8]/50 border-2 border-dashed border-gray-200 rounded-3xl opacity-60">
+                  <div className="w-14 h-14 rounded-2xl bg-gray-200 flex items-center justify-center text-gray-500 mb-3">
+                     <span className="material-symbols-outlined text-3xl">workspace_premium</span>
+                  </div>
+                  <span className="text-[12px] font-bold text-gray-500">Sertifikat Kelulusan</span>
+                  <span className="text-[9px] text-gray-400 mt-0.5 uppercase tracking-wider">Coming Soon</span>
+               </div>
+            </div>
+
+            <button onClick={onNext} className="w-full py-2.5 bg-[#0A110B] text-white rounded-full font-bold text-[10px] uppercase tracking-widest shadow-lg hover:bg-black active:translate-y-0.5 transition-all shrink-0 mt-4 flex items-center justify-center gap-2">
+              Selesaikan Seluruh Pembelajaran
+              <span className="material-symbols-outlined text-sm">celebration</span>
+            </button>
+         </div>
+      </div>
+
+      {/* Links Modal */}
       {showLinkModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-white animate-in zoom-in-95 duration-300">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500 flex items-center justify-center text-white">
-                  <span className="material-symbols-outlined text-lg">
-                    link
-                  </span>
+        <div className="fixed inset-0 bg-[#0A110B]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#FDFCF8] w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-[#C6E67D]/30 animate-in zoom-in-95 duration-300">
+             <div className="p-3 border-b border-[#C6E67D]/30 flex justify-between items-center bg-white">
+                <div className="flex items-center gap-2">
+                   <div className="w-6 h-6 rounded-lg bg-[#528C46] flex items-center justify-center text-white"><span className="material-symbols-outlined text-xs">link</span></div>
+                   <h3 className="font-bold text-[#0A110B] text-[11px]">Tautan Penting Tahap Akhir</h3>
                 </div>
-                <h3 className="font-bold text-slate-800">Tautan Penting Tahap Akhir</h3>
-              </div>
-              <button
-                onClick={() => setShowLinkModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
-            </div>
-            <div className="p-5 space-y-3 max-h-[70vh] overflow-y-auto custom-scrollbar">
-              {/* LKPD 9 */}
-              <a
-                href="https://forms.gle/maPg1qzZnj2EwzeX6"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-blue-300 hover:bg-blue-50 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-blue-500">
-                    <span className="material-symbols-outlined">
-                      assignment_turned_in
-                    </span>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-bold text-slate-700">Tautan Pengumpulan LKPD 9</p>
-                    <p className="text-[10px] text-slate-500">forms.gle/maPg1qzZnj2EwzeX6</p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-blue-400">
-                  open_in_new
-                </span>
-              </a>
-
-              {/* Poster Guidelines */}
-              <a
-                href="https://docs.google.com/document/d/1wbiEEzvG0oFLmsKit0qg1MBX5nd3OQN4/edit?usp=sharing&ouid=114334106960553096157&rtpof=true&sd=true"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-indigo-300 hover:bg-indigo-50 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-indigo-500">
-                    <span className="material-symbols-outlined">
-                      description
-                    </span>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-bold text-slate-700">Ketentuan Tugas Poster</p>
-                    <p className="text-[10px] text-slate-500 truncate max-w-[200px]">docs.google.com/document/...</p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-indigo-400">
-                  open_in_new
-                </span>
-              </a>
-
-              {/* Refleksi */}
-              <a
-                href="https://forms.gle/Ca5q7E8cp52w9Gzc9"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-purple-300 hover:bg-purple-50 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-purple-500">
-                    <span className="material-symbols-outlined">
-                      psychology_alt
-                    </span>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-bold text-slate-700">Tautan Refleksi Pembelajaran</p>
-                    <p className="text-[10px] text-slate-500">forms.gle/Ca5q7E8cp52w9Gzc9</p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-purple-400">
-                  open_in_new
-                </span>
-              </a>
-
-              {/* Posttest */}
-              <a
-                href="https://forms.gle/ukv82HKptFFe8RdU6"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-rose-300 hover:bg-rose-50 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-rose-500">
-                    <span className="material-symbols-outlined">
-                      quiz
-                    </span>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-bold text-slate-700">Tautan Posttest Literasi Data</p>
-                    <p className="text-[10px] text-slate-500">forms.gle/ukv82HKptFFe8RdU6</p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-rose-400">
-                  open_in_new
-                </span>
-              </a>
-            </div>
+                <button onClick={() => setShowLinkModal(false)} className="w-6 h-6 rounded-full flex items-center justify-center text-[#6B7280] hover:bg-gray-100 transition-colors"><span className="material-symbols-outlined text-sm">close</span></button>
+             </div>
+             <div className="p-3 flex flex-col gap-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <a href="https://forms.gle/maPg1qzZnj2EwzeX6" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 bg-white border border-gray-200 rounded-xl hover:border-[#528C46] transition-all group">
+                   <div className="w-8 h-8 rounded-full bg-[#C6E67D]/20 flex items-center justify-center text-[#528C46]"><span className="material-symbols-outlined text-sm">assignment_turned_in</span></div>
+                   <div className="flex-1">
+                     <p className="font-bold text-[#0A110B] text-[10px]">Pengumpulan LKPD 9</p>
+                     <p className="text-[8px] text-[#6B7280]">forms.gle/maPg1qzZnj2EwzeX6</p>
+                   </div>
+                   <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-0.5 transition-transform">open_in_new</span>
+                </a>
+                <a href="https://docs.google.com/document/d/1wbiEEzvG0oFLmsKit0qg1MBX5nd3OQN4/edit?usp=sharing&ouid=114334106960553096157&rtpof=true&sd=true" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 bg-white border border-gray-200 rounded-xl hover:border-[#528C46] transition-all group">
+                   <div className="w-8 h-8 rounded-full bg-[#C6E67D]/20 flex items-center justify-center text-[#528C46]"><span className="material-symbols-outlined text-sm">description</span></div>
+                   <div className="flex-1">
+                     <p className="font-bold text-[#0A110B] text-[10px]">Ketentuan Tugas Poster</p>
+                     <p className="text-[8px] text-[#6B7280]">docs.google.com/...</p>
+                   </div>
+                   <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-0.5 transition-transform">open_in_new</span>
+                </a>
+                <a href="https://forms.gle/Ca5q7E8cp52w9Gzc9" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 bg-white border border-gray-200 rounded-xl hover:border-[#528C46] transition-all group">
+                   <div className="w-8 h-8 rounded-full bg-[#C6E67D]/20 flex items-center justify-center text-[#528C46]"><span className="material-symbols-outlined text-sm">psychology_alt</span></div>
+                   <div className="flex-1">
+                     <p className="font-bold text-[#0A110B] text-[10px]">Refleksi Pembelajaran</p>
+                     <p className="text-[8px] text-[#6B7280]">forms.gle/Ca5q7E8cp52w9Gzc9</p>
+                   </div>
+                   <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-0.5 transition-transform">open_in_new</span>
+                </a>
+                <a href="https://forms.gle/ukv82HKptFFe8RdU6" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2 bg-white border border-gray-200 rounded-xl hover:border-[#528C46] transition-all group">
+                   <div className="w-8 h-8 rounded-full bg-[#C6E67D]/20 flex items-center justify-center text-[#528C46]"><span className="material-symbols-outlined text-sm">quiz</span></div>
+                   <div className="flex-1">
+                     <p className="font-bold text-[#0A110B] text-[10px]">Posttest Literasi Data</p>
+                     <p className="text-[8px] text-[#6B7280]">forms.gle/ukv82HKptFFe8RdU6</p>
+                   </div>
+                   <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-0.5 transition-transform">open_in_new</span>
+                </a>
+             </div>
           </div>
         </div>
       )}
-
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #e2e8f0;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #cbd5e1;
-        }
-      `}</style>
     </div>
   );
 };
 
 export default Literacy5;
+
