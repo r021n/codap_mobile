@@ -33,7 +33,7 @@ const Literacy2: React.FC<Literacy2Props> = ({ onNext, onBack }) => {
   ];
 
   return (
-    <div className="w-screenhh-screenbg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
+    <div className="w-screen h-screen bg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
       {/* Top Header Section */}
       <div className="flex justify-between items-center mb-2 shrink-0 gap-2">
         <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -306,6 +306,25 @@ const Literacy2: React.FC<Literacy2Props> = ({ onNext, onBack }) => {
                   </p>
                   <p className="text-xs text-[#6B7280]">
                     forms.gle/maPg1qzZnj2EwzeX6
+                  </p>
+                </div>
+                <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">
+                  open_in_new
+                </span>
+              </a>
+              <a
+                href="https://forms.gle/Ca5q7E8cp52w9Gzc9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group"
+              >
+                <span className="material-symbols-outlined text-2xl text-[#528C46]">
+                  history_edu
+                </span>
+                <div className="flex-1">
+                  <p className="font-bold text-[#0A110B] text-sm">Refleksi</p>
+                  <p className="text-xs text-[#6B7280]">
+                    forms.gle/Ca5q7E8cp52w9Gzc9
                   </p>
                 </div>
                 <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">

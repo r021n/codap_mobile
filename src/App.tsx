@@ -156,10 +156,7 @@ function App() {
 
   if (step === "literacy") {
     return (
-      <Literacy
-        onNext={handleLiteracyComplete}
-        onBack={handleBackToAnalysis}
-      />
+      <Literacy onNext={handleLiteracyComplete} onBack={handleBackToAnalysis} />
     );
   }
 
@@ -200,30 +197,54 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 text-center font-sans">
-      <div className="bg-green-50 p-10 rounded-3xl border border-green-100 shadow-xl max-w-md">
-        <h1 className="text-3xl font-black text-slate-800 mb-4">
-          Selamat Datang, <br />
-          <span className="text-green-600">{userData?.fullName}</span>!
+    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-col items-center justify-center p-4 overflow-hidden font-sans relative">
+      {/* Subtle Background Accents */}
+      <div className="absolute top-[-20%] right-[-10%] w-48 h-48 bg-[#C6E67D]/15 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-[-20%] left-[-10%] w-48 h-48 bg-[#528C46]/10 rounded-full blur-3xl"></div>
+
+      <div className="bg-white w-full max-w-lg p-5 rounded-3xl border border-[#C6E67D]/30 shadow-xl relative z-10 flex flex-col items-center">
+        <div className="w-12 h-12 bg-[#C6E67D]/20 rounded-2xl flex items-center justify-center mb-3 rotate-3 shadow-sm">
+          <span className="material-symbols-outlined text-[#528C46] text-3xl animate-gentle-bounce">
+            celebration
+          </span>
+        </div>
+
+        <h1 className="text-2xl font-black text-[#0A110B] mb-2 leading-tight text-center">
+          Luar Biasa,{" "}
+          <span className="text-[#528C46]">{userData?.fullName}!</span>
         </h1>
-        <p className="text-slate-600 mb-6">
-          Kamu telah terdaftar sebagai siswa kelas{" "}
-          <span className="font-bold text-slate-800">
-            {userData?.className}
-          </span>{" "}
-          dengan nomor presensi{" "}
-          <span className="font-bold text-slate-800">
-            {userData?.attendanceNumber}
+
+        <p className="text-[#6B7280] text-[14px] mb-5 leading-snug font-medium text-center">
+          Kamu telah berhasil menyelesaikan seluruh rangkaian <br />
+          <span className="text-[#0A110B] font-bold">
+            Investigasi Kualitas Udara Digital
           </span>
           .
         </p>
+
         <button
-          onClick={() => alert("Mulai Pembelajaran!")}
-          className="w-full py-4 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg shadow-green-200 hover:-translate-y-1 transition-all"
+          onClick={() => {
+            setStep("onboarding");
+            setUserData(null);
+          }}
+          className="w-full py-3 bg-[#0A110B] text-white rounded-full font-bold text-xs uppercase tracking-widest shadow-lg hover:bg-[#528C46] transition-all flex items-center justify-center gap-2 group"
         >
-          Mulai Belajar
+          Kembali ke Beranda
+          <span className="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform duration-500">
+            replay
+          </span>
         </button>
       </div>
+
+      <style>{`
+        @keyframes gentle-bounce {
+          0%, 100% { transform: translateY(0) rotate(3deg); }
+          50% { transform: translateY(-4px) rotate(3deg); }
+        }
+        .animate-gentle-bounce {
+          animation: gentle-bounce 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }

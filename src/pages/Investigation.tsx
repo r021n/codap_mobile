@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import AirQualityMeasurementLab from "../components/VLabs/AirQualityMeasurementLab";
+import AirExperimentLab from "../components/VLabs/AirExperimentLab";
+
 
 interface InvestigationProps {
   onNext: () => void;
@@ -9,6 +12,8 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
   const [showSimModal, setShowSimModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [activeLab, setActiveLab] = useState<"none" | "sim1" | "sim2">("none");
+
 
   const tasks = [
     "Buatlah rancangan praktikum dari rumusan masalah yang telah kamu buat modelnya pada tahap sebelumnya (secara berkelompok)!",
@@ -19,7 +24,16 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
     "Pastikan setiap langkah dalam rancangan praktikum terukur dan dapat dilakukan dengan alat yang tersedia.",
   ];
 
+  if (activeLab === "sim1") {
+    return <AirQualityMeasurementLab onBack={() => setActiveLab("none")} />;
+  }
+
+  if (activeLab === "sim2") {
+    return <AirExperimentLab onBack={() => setActiveLab("none")} />;
+  }
+
   return (
+
     <div className="w-screen h-screen bg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
       {/* Top Header Section */}
       <div className="flex justify-between items-center mb-2 shrink-0 gap-2">
@@ -225,9 +239,10 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
             <div className="p-6 flex gap-4">
               <button
                 onClick={() => {
-                  window.open("#", "_blank");
+                  setActiveLab("sim1");
                   setShowSimModal(false);
                 }}
+
                 className="flex-1 flex flex-col items-center gap-3 p-4 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group"
               >
                 <span className="material-symbols-outlined text-3xl text-[#528C46] group-hover:scale-110 transition-transform">
@@ -235,14 +250,17 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
                 </span>
                 <div className="text-center">
                   <p className="font-bold text-[#0A110B] text-sm">Simulasi 1</p>
-                  <p className="text-xs text-[#6B7280]">Eksperimen Udara</p>
+                  <p className="text-xs text-[#6B7280]">
+                    Simulasi Praktikum Pengukuran Kualitas Udara
+                  </p>
                 </div>
               </button>
               <button
                 onClick={() => {
-                  window.open("#", "_blank");
+                  setActiveLab("sim2");
                   setShowSimModal(false);
                 }}
+
                 className="flex-1 flex flex-col items-center gap-3 p-4 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group"
               >
                 <span className="material-symbols-outlined text-3xl text-[#528C46] group-hover:scale-110 transition-transform">
@@ -250,7 +268,9 @@ const Investigation: React.FC<InvestigationProps> = ({ onNext, onBack }) => {
                 </span>
                 <div className="text-center">
                   <p className="font-bold text-[#0A110B] text-sm">Simulasi 2</p>
-                  <p className="text-xs text-[#6B7280]">Analisis Polutan</p>
+                  <p className="text-xs text-[#6B7280]">
+                    Simulasi Praktikum Dampak Pencemaran Udara
+                  </p>
                 </div>
               </button>
             </div>

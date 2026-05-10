@@ -2,9 +2,10 @@ import React, { useState } from "react";
 
 interface Literacy5Props {
   onBack: () => void;
+  onNext: () => void;
 }
 
-const Literacy5: React.FC<Literacy5Props> = ({ onBack }) => {
+const Literacy5: React.FC<Literacy5Props> = ({ onBack, onNext }) => {
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showChat, setShowChat] = useState(false);
 
@@ -190,7 +191,10 @@ const Literacy5: React.FC<Literacy5Props> = ({ onBack }) => {
 
             {/* Final Action Button */}
             <div className="mt-4 shrink-0">
-              <button className="w-full py-4 bg-[#528C46] text-white rounded-full font-bold text-[12px] uppercase tracking-widest shadow-lg hover:bg-[#3d6934] active:translate-y-0.5 transition-all flex items-center justify-center gap-2">
+              <button 
+                onClick={onNext}
+                className="w-full py-4 bg-[#528C46] text-white rounded-full font-bold text-[12px] uppercase tracking-widest shadow-lg hover:bg-[#3d6934] active:translate-y-0.5 transition-all flex items-center justify-center gap-2"
+              >
                 Pembelajaran Selesai
                 <span className="material-symbols-outlined text-[16px]">
                   celebration

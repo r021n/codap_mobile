@@ -1,0 +1,1472 @@
+import {
+ useState,
+ useEffect,
+ useRef,
+ useCallback,
+ type PointerEvent as ReactPointerEvent,
+} from "react";
+
+type PortId = "B" | "C" | "D" | "J";
+
+type InventoryItem =
+ | "thermoA"
+ | "thermoB"
+ | "thermoD"
+ | "stopperA"
+ | "stopperB"
+ | "stopperC"
+ | "stopperD"
+ | "plant"
+ | "bakingSoda"
+ | "vinegar"
+ | "cylinder"
+ | "sun"
+ | "stopwatch";
+
+type DropZone =
+ | "flaskA"
+ | "flaskB"
+ | "flaskC"
+ | "flaskD"
+ | "jar"
+ | "scale"
+ | "environment";
+
+type PortCoords = Record<PortId, { x: number; y: number }>;
+
+type LabLog = {
+ time: number;
+ tempA: string;
+ tempB: string;
+ tempD: string;
+};
+
+type LabState = {
+ flaskA: {
+ hasThermo: boolean;
+ hasStopper: boolean;
+ temp: number;
+ };
+ flaskB: { hasThermo: boolean; hasStopper: boolean; temp: number };
+ flaskC: { hasSoda: boolean; hasVinegar: boolean; hasStopper: boolean };
+ flaskD: { hasThermo: boolean; hasStopper: boolean; temp: number };
+ jar: { hasPlant: boolean; hasWrap: boolean };
+ scale: { hasCylinder: boolean; sodaAmount: number };
+ inventory: Record<InventoryItem, boolean>;
+ isSunny: boolean;
+ isRunning: boolean;
+ time: number;
+ logs: LabLog[];
+ hoseBCConnected: boolean;
+ hoseDJConnected: boolean;
+ duration: number;
+};
+
+type DragInfo = {
+ isDragging: boolean;
+ item: InventoryItem | null;
+ x: number;
+ y: number;
+};
+
+type HoseDrawing = {
+ isDrawing: boolean;
+ startPort: PortId | null;
+ currentX: number;
+ currentY: number;
+};
+
+type ErlenmeyerProps = {
+ label: string;
+ hasThermo?: boolean;
+ hasStopper?: boolean;
+ hasSoda?: boolean;
+ hasVinegar?: boolean;
+ isBubbling?: boolean;
+};
+
+type GelasUkurProps = {
+ sodaAmount: number;
+};
+
+type TimbanganProps = {
+ value: number;
+};
+
+type ToplesProps = {
+ hasPlant: boolean;
+ hasWrap: boolean;
+};
+
+const DEFAULT_DURATION = 5;
+
+const initialState: LabState = {
+ flaskA: { hasThermo: false, hasStopper: false, temp: 28 },
+ flaskB: { hasThermo: false, hasStopper: false, temp: 28 },
+ flaskC: { hasSoda: false, hasVinegar: false, hasStopper: false },
+ flaskD: { hasThermo: false, hasStopper: false, temp: 28 },
+ jar: { hasPlant: false, hasWrap: false },
+ scale: { hasCylinder: false, sodaAmount: 0 },
+ inventory: {
+ thermoA: true,
+ thermoB: true,
+ thermoD: true,
+ stopperA: true,
+ stopperB: true,
+ stopperC: true,
+ stopperD: true,
+ plant: true,
+ bakingSoda: true,
+ vinegar: true,
+ cylinder: true,
+ sun: true,
+ stopwatch: true,
+ },
+ isSunny: false,
+ isRunning: false,
+ time: 0,
+ logs: [],
+ hoseBCConnected: false,
+ hoseDJConnected: false,
+ duration: DEFAULT_DURATION,
+};
+
+const initialDragInfo: DragInfo = {
+ isDragging: false,
+ item: null,
+ x: 0,
+ y: 0,
+};
+
+const initialHoseDrawing: HoseDrawing = {
+ isDrawing: false,
+ startPort: null,
+ currentX: 0,
+ currentY: 0,
+};
+
+const initialPortCoords: PortCoords = {
+ B: { x: 0, y: 0 },
+ C: { x: 0, y: 0 },
+ D: { x: 0, y: 0 },
+ J: { x: 0, y: 0 },
+};
+
+const isPortId = (value: string | null | undefined): value is PortId => {
+ return value === "B" || value === "C" || value === "D" || value === "J";
+};
+
+const getHosePair = (a: PortId, b: PortId): "BC" | "DJ" | null => {
+ if ((a === "B" && b === "C") || (a === "C" && b === "B")) {
+ return "BC";
+ }
+ if ((a === "D" && b === "J") || (a === "J" && b === "D")) {
+ return "DJ";
+ }
+ return null;
+};
+
+const isPairConnected = (labState: LabState, pair: "BC" | "DJ"): boolean => {
+ return pair === "BC" ? labState.hoseBCConnected : labState.hoseDJConnected;
+};
+
+const hasMeasuredPortCoords = (coords: PortCoords, port: PortId): boolean => {
+ return coords[port].x !== 0 || coords[port].y !== 0;
+};
+
+const getClientPoint = (
+ event: MouseEvent | TouchEvent,
+): { x: number; y: number } | null => {
+ if ("touches" in event) {
+ const touch = event.touches[0] ?? event.changedTouches[0];
+ if (!touch) {
+ return null;
+ }
+ return { x: touch.clientX, y: touch.clientY };
+ }
+
+ return { x: event.clientX, y: event.clientY };
+};
+
+// --- SVGs Komponen Praktikum ---
+
+const ErlenmeyerSVG = ({
+ label,
+ hasThermo,
+ hasStopper,
+ hasSoda,
+ hasVinegar,
+ isBubbling,
+}: ErlenmeyerProps) => (
+ <svg viewBox="0 0 120 160" className="w-full h-full drop-shadow-md">
+ {/* Gabus / Stopper */}
+ {hasStopper && (
+ <path
+ d="M 50 22 L 70 22 L 68 35 L 52 35 Z"
+ fill="#8B4513"
+ stroke="#5c2e0b"
+ strokeWidth="2"
+ />
+ )}
+
+ {/* Termometer */}
+ {hasThermo && (
+ <g>
+ <line
+ x1="60"
+ y1="-10"
+ x2="60"
+ y2="100"
+ stroke="#d1d5db"
+ strokeWidth="6"
+ strokeLinecap="round"
+ />
+ <line
+ x1="60"
+ y1="20"
+ x2="60"
+ y2="90"
+ stroke="#ef4444"
+ strokeWidth="2"
+ strokeLinecap="round"
+ />
+ <circle cx="60" cy="100" r="8" fill="#ef4444" />
+ </g>
+ )}
+
+ {/* Leher Tabung (tanpa kuping/pegangan) */}
+ <path
+ d="M 50 25 L 50 55 L 15 135 A 10 10 0 0 0 25 145 L 95 145 A 10 10 0 0 0 105 135 L 70 55 L 70 25 Z"
+ fill="rgba(255, 255, 255, 0.5)"
+ stroke="#475569"
+ strokeWidth="2.5"
+ />
+
+ {/* Mulut tabung */}
+ <line
+ x1="48"
+ y1="25"
+ x2="72"
+ y2="25"
+ stroke="#475569"
+ strokeWidth="3"
+ strokeLinecap="round"
+ />
+
+ {/* Label */}
+ <rect
+ x="50"
+ y="70"
+ width="20"
+ height="20"
+ fill="white"
+ stroke="#64748b"
+ rx="2"
+ />
+ <text
+ x="60"
+ y="84"
+ fontSize="12"
+ textAnchor="middle"
+ fontWeight="bold"
+ fill="#1e293b"
+ >
+ {label}
+ </text>
+
+ {/* Isi Tabung: Baking Soda */}
+ {hasSoda && (
+ <path d="M 20 140 Q 60 120 100 140 L 95 145 L 25 145 Z" fill="#f8fafc" />
+ )}
+
+ {/* Isi Tabung: Cuka & Reaksi */}
+ {hasVinegar && (
+ <g>
+ <path
+ d="M 30 110 Q 60 105 90 110 L 100 135 L 20 135 Z"
+ fill="rgba(191, 219, 254, 0.7)"
+ />
+ {isBubbling && (
+ <g>
+ <circle
+ cx="40"
+ cy="120"
+ r="3"
+ fill="white"
+ className="animate-bounce"
+ />
+ <circle
+ cx="60"
+ cy="115"
+ r="4"
+ fill="white"
+ className="animate-bounce"
+ style={{ animationDelay: "0.2s" }}
+ />
+ <circle
+ cx="80"
+ cy="125"
+ r="2"
+ fill="white"
+ className="animate-bounce"
+ style={{ animationDelay: "0.4s" }}
+ />
+ <circle
+ cx="50"
+ cy="90"
+ r="3"
+ fill="white"
+ className="animate-pulse"
+ />
+ <circle
+ cx="70"
+ cy="70"
+ r="4"
+ fill="white"
+ className="animate-pulse"
+ style={{ animationDelay: "0.3s" }}
+ />
+ <text
+ x="60"
+ y="60"
+ fontSize="12"
+ fill="#94a3b8"
+ textAnchor="middle"
+ className="animate-pulse"
+ >
+ CO₂
+ </text>
+ </g>
+ )}
+ </g>
+ )}
+ </svg>
+);
+
+const SunSVG = () => (
+ <svg width="70" height="70" viewBox="0 0 100 100">
+ {/* Lingkaran cahaya luar */}
+ <circle cx="50" cy="50" r="35" fill="#fde68a" opacity="0.3" />
+ {/* Badan matahari */}
+ <circle cx="50" cy="50" r="22" fill="#fbbf24" />
+ <circle cx="50" cy="50" r="18" fill="#fcd34d" />
+ {/* Highlight */}
+ <circle cx="43" cy="43" r="6" fill="#fef3c7" opacity="0.7" />
+ {/* Sinar matahari (garis pendek memancar) */}
+ {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => {
+ const rad = (angle * Math.PI) / 180;
+ const x1 = 50 + Math.cos(rad) * 28;
+ const y1 = 50 + Math.sin(rad) * 28;
+ const x2 = 50 + Math.cos(rad) * 40;
+ const y2 = 50 + Math.sin(rad) * 40;
+ return (
+ <line
+ key={angle}
+ x1={x1}
+ y1={y1}
+ x2={x2}
+ y2={y2}
+ stroke="#f59e0b"
+ strokeWidth="4"
+ strokeLinecap="round"
+ />
+ );
+ })}
+ </svg>
+);
+
+const GelasUkurSVG = ({ sodaAmount }: GelasUkurProps) => (
+ <svg viewBox="0 0 60 120" className="w-full h-full drop-shadow-md">
+ {/* Skala */}
+ <line x1="15" y1="20" x2="25" y2="20" stroke="#94a3b8" strokeWidth="1" />
+ <text x="28" y="24" fontSize="8" fill="#64748b">
+ 50
+ </text>
+ <line x1="15" y1="50" x2="25" y2="50" stroke="#94a3b8" strokeWidth="1" />
+ <text x="28" y="54" fontSize="8" fill="#64748b">
+ 30
+ </text>
+ <line x1="15" y1="80" x2="25" y2="80" stroke="#94a3b8" strokeWidth="1" />
+ <text x="28" y="84" fontSize="8" fill="#64748b">
+ 10
+ </text>
+
+ {/* Isi Soda */}
+ {sodaAmount > 0 && (
+ <rect
+ x="16"
+ y={110 - sodaAmount * 3}
+ width="28"
+ height={sodaAmount * 3}
+ fill="#f8fafc"
+ />
+ )}
+
+ {/* Badan */}
+ <path
+ d="M 15 10 L 45 10 L 45 110 A 5 5 0 0 1 40 115 L 20 115 A 5 5 0 0 1 15 110 Z"
+ fill="rgba(255,255,255,0.4)"
+ stroke="#475569"
+ strokeWidth="2"
+ />
+ <path d="M 10 115 L 50 115 L 50 120 L 10 120 Z" fill="#475569" />
+ </svg>
+);
+
+const TimbanganSVG = ({ value }: TimbanganProps) => (
+ <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
+ <path
+ d="M 10 20 L 90 20 L 100 50 L 0 50 Z"
+ fill="#cbd5e1"
+ stroke="#94a3b8"
+ strokeWidth="2"
+ />
+ <rect x="30" y="25" width="40" height="15" fill="#0f172a" rx="2" />
+ <text
+ x="50"
+ y="36"
+ fontSize="10"
+ fill="#22c55e"
+ textAnchor="middle"
+ fontFamily="monospace"
+ fontWeight="bold"
+ >
+ {value.toFixed(1)} g
+ </text>
+ <path
+ d="M 20 20 L 80 20 L 80 15 L 20 15 Z"
+ fill="#e2e8f0"
+ stroke="#94a3b8"
+ strokeWidth="1"
+ />
+ </svg>
+);
+
+const ToplesSVG = ({ hasPlant, hasWrap }: ToplesProps) => (
+ <svg viewBox="0 0 120 160" className="w-full h-full drop-shadow-md">
+ <rect
+ x="25"
+ y="35"
+ width="70"
+ height="105"
+ rx="10"
+ fill="rgba(255,255,255,0.4)"
+ stroke="#475569"
+ strokeWidth="2.5"
+ />
+ <rect
+ x="35"
+ y="26"
+ width="50"
+ height="10"
+ rx="3"
+ fill="#94a3b8"
+ stroke="#64748b"
+ strokeWidth="1.5"
+ />
+ {hasWrap && (
+ <path
+ d="M 32 28 Q 60 18 88 28"
+ fill="none"
+ stroke="#e2e8f0"
+ strokeWidth="4"
+ strokeLinecap="round"
+ />
+ )}
+ {hasPlant && (
+ <g transform="translate(60, 130)">
+ <path d="M 0 0 Q -12 -25 -6 -45 Q 6 -20 0 0" fill="#22c55e" />
+ <path d="M 0 0 Q 14 -16 22 -34 Q 8 -12 0 0" fill="#16a34a" />
+ <path d="M 0 0 Q -18 -12 -24 -28 Q -8 -8 0 0" fill="#15803d" />
+ </g>
+ )}
+ <text
+ x="60"
+ y="152"
+ textAnchor="middle"
+ fontSize="10"
+ fill="#334155"
+ fontWeight="600"
+ >
+ Toples
+ </text>
+ </svg>
+);
+
+// --- Komponen Utama Aplikasi ---
+
+type AirExperimentLabProps = {
+ onBack: () => void;
+};
+
+export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
+ const [state, setState] = useState<LabState>(initialState);
+ const [dragInfo, setDragInfo] = useState<DragInfo>(initialDragInfo);
+ const [activeDropZone, setActiveDropZone] = useState<DropZone | null>(null);
+ const [durationInput, setDurationInput] = useState<string>(
+ String(DEFAULT_DURATION),
+ );
+
+ const [hoseDrawing, setHoseDrawing] =
+ useState<HoseDrawing>(initialHoseDrawing);
+ const workspaceRef = useRef<HTMLDivElement | null>(null);
+ const portBRef = useRef<HTMLDivElement | null>(null);
+ const portCRef = useRef<HTMLDivElement | null>(null);
+ const portDRef = useRef<HTMLDivElement | null>(null);
+ const portJRef = useRef<HTMLDivElement | null>(null);
+ const [portCoords, setPortCoords] = useState<PortCoords>(initialPortCoords);
+
+ const updatePortCoords = useCallback(() => {
+ if (
+ !workspaceRef.current ||
+ !portBRef.current ||
+ !portCRef.current ||
+ !portDRef.current ||
+ !portJRef.current
+ )
+ return;
+ const workspaceRect = workspaceRef.current.getBoundingClientRect();
+ const rectB = portBRef.current.getBoundingClientRect();
+ const rectC = portCRef.current.getBoundingClientRect();
+ const rectD = portDRef.current.getBoundingClientRect();
+ const rectJ = portJRef.current.getBoundingClientRect();
+
+ setPortCoords({
+ B: {
+ x: rectB.left - workspaceRect.left + rectB.width / 2,
+ y: rectB.top - workspaceRect.top + rectB.height / 2,
+ },
+ C: {
+ x: rectC.left - workspaceRect.left + rectC.width / 2,
+ y: rectC.top - workspaceRect.top + rectC.height / 2,
+ },
+ D: {
+ x: rectD.left - workspaceRect.left + rectD.width / 2,
+ y: rectD.top - workspaceRect.top + rectD.height / 2,
+ },
+ J: {
+ x: rectJ.left - workspaceRect.left + rectJ.width / 2,
+ y: rectJ.top - workspaceRect.top + rectJ.height / 2,
+ },
+ });
+ }, []);
+
+ const schedulePortCoordsUpdate = useCallback(() => {
+ updatePortCoords();
+ window.setTimeout(updatePortCoords, 80);
+ }, [updatePortCoords]);
+
+ const isPortLocked = useCallback((port: PortId, labState: LabState) => {
+ const pair = port === "B" || port === "C" ? "BC" : "DJ";
+ return isPairConnected(labState, pair);
+ }, []);
+
+ const tryConnectPorts = useCallback(
+ (startPort: PortId, targetPort: PortId) => {
+ const pair = getHosePair(startPort, targetPort);
+ if (!pair) {
+ return false;
+ }
+
+ setState((prev) => {
+ if (isPairConnected(prev, pair)) {
+ return prev;
+ }
+
+ if (pair === "BC") {
+ return { ...prev, hoseBCConnected: true };
+ }
+
+ return { ...prev, hoseDJConnected: true };
+ });
+ setHoseDrawing(initialHoseDrawing);
+ setTimeout(updatePortCoords, 50);
+ return true;
+ },
+ [updatePortCoords],
+ );
+
+ useEffect(() => {
+ const visualViewport = window.visualViewport;
+
+ window.addEventListener("resize", schedulePortCoordsUpdate);
+ window.addEventListener("orientationchange", schedulePortCoordsUpdate);
+ visualViewport?.addEventListener("resize", schedulePortCoordsUpdate);
+
+ window.setTimeout(schedulePortCoordsUpdate, 100);
+
+ return () => {
+ window.removeEventListener("resize", schedulePortCoordsUpdate);
+ window.removeEventListener("orientationchange", schedulePortCoordsUpdate);
+ visualViewport?.removeEventListener("resize", schedulePortCoordsUpdate);
+ };
+ }, [schedulePortCoordsUpdate, state.isSunny]);
+
+ useEffect(() => {
+ let interval: ReturnType<typeof setInterval> | undefined;
+ if (state.isRunning && state.time < state.duration) {
+ interval = setInterval(() => {
+ setState((prev) => {
+ const newTime = prev.time + 1;
+ const newTempA = prev.flaskA.temp + 1.0;
+ const newTempB =
+ prev.flaskB.temp + (prev.hoseBCConnected ? 2.5 : 1.0);
+ // Tabung D dibuat sebagai profil suhu terendah (efek pendinginan oleh tanaman/toples).
+ const newTempD =
+ prev.flaskD.temp + (prev.hoseDJConnected ? 0.3 : 0.5);
+
+ const newLogs = [
+ ...prev.logs,
+ {
+ time: newTime,
+ tempA: newTempA.toFixed(1),
+ tempB: newTempB.toFixed(1),
+ tempD: newTempD.toFixed(1),
+ },
+ ];
+ return {
+ ...prev,
+ time: newTime,
+ flaskA: { ...prev.flaskA, temp: newTempA },
+ flaskB: { ...prev.flaskB, temp: newTempB },
+ flaskD: { ...prev.flaskD, temp: newTempD },
+ logs: newLogs,
+ isRunning: newTime < prev.duration,
+ };
+ });
+ }, 2000);
+ }
+ return () => clearInterval(interval);
+ }, [
+ state.isRunning,
+ state.time,
+ state.hoseBCConnected,
+ state.hoseDJConnected,
+ state.duration,
+ ]);
+
+ const isSetupComplete = useCallback((s: LabState) => {
+ return (
+ s.flaskA.hasThermo &&
+ s.flaskA.hasStopper &&
+ s.flaskB.hasThermo &&
+ s.flaskB.hasStopper &&
+ s.flaskD.hasThermo &&
+ s.flaskD.hasStopper &&
+ s.flaskC.hasSoda &&
+ s.flaskC.hasVinegar &&
+ s.flaskC.hasStopper &&
+ s.jar.hasPlant &&
+ s.jar.hasWrap &&
+ s.hoseBCConnected &&
+ s.hoseDJConnected
+ );
+ }, []);
+
+ const handleReset = useCallback(() => {
+ setState({ ...initialState, duration: state.duration });
+ setDragInfo(initialDragInfo);
+ setActiveDropZone(null);
+ setHoseDrawing(initialHoseDrawing);
+ setPortCoords(initialPortCoords);
+ }, [state.duration]);
+
+ const handleDurationChange = useCallback((value: string) => {
+ setDurationInput(value);
+ const num = parseInt(value, 10);
+ if (!isNaN(num) && num >= 5) {
+ setState((prev) => ({ ...prev, duration: num }));
+ }
+ }, []);
+
+ const handleDurationBlur = useCallback(() => {
+ const num = parseInt(durationInput, 10);
+ if (isNaN(num) || num < 5) {
+ setDurationInput("5");
+ setState((prev) => ({ ...prev, duration: 5 }));
+ }
+ }, [durationInput]);
+
+ const processAction = useCallback(
+ (item: InventoryItem, zone: DropZone) => {
+ setState((prev) => {
+ const newState: LabState = {
+ ...prev,
+ flaskA: { ...prev.flaskA },
+ flaskB: { ...prev.flaskB },
+ flaskC: { ...prev.flaskC },
+ flaskD: { ...prev.flaskD },
+ jar: { ...prev.jar },
+ scale: { ...prev.scale },
+ inventory: { ...prev.inventory },
+ logs: [...prev.logs],
+ };
+ const inv = newState.inventory;
+
+ if (zone === "flaskA") {
+ if (item === "thermoA" && !newState.flaskA.hasThermo) {
+ newState.flaskA.hasThermo = true;
+ inv.thermoA = false;
+ }
+ if (item === "stopperA" && !newState.flaskA.hasStopper) {
+ newState.flaskA.hasStopper = true;
+ inv.stopperA = false;
+ }
+ }
+
+ if (zone === "flaskB") {
+ if (item === "thermoB" && !newState.flaskB.hasThermo) {
+ newState.flaskB.hasThermo = true;
+ inv.thermoB = false;
+ }
+ if (item === "stopperB" && !newState.flaskB.hasStopper) {
+ newState.flaskB.hasStopper = true;
+ inv.stopperB = false;
+ }
+ }
+
+ if (zone === "scale") {
+ if (item === "cylinder" && !newState.scale.hasCylinder) {
+ newState.scale.hasCylinder = true;
+ inv.cylinder = false;
+ }
+ // Baking soda bisa di-drop ke timbangan (yang sudah ada gelas ukur)
+ if (item === "bakingSoda" && newState.scale.hasCylinder) {
+ newState.scale.sodaAmount = 10;
+ }
+ }
+
+ if (zone === "flaskC") {
+ if (item === "cylinder" && newState.scale.sodaAmount > 0) {
+ newState.flaskC.hasSoda = true;
+ newState.scale.sodaAmount = 0;
+ inv.cylinder = true;
+ newState.scale.hasCylinder = false;
+ }
+ if (item === "vinegar") {
+ newState.flaskC.hasVinegar = true;
+ }
+ if (item === "stopperC" && !newState.flaskC.hasStopper) {
+ newState.flaskC.hasStopper = true;
+ inv.stopperC = false;
+ }
+ }
+
+ if (zone === "flaskD") {
+ if (item === "thermoD" && !newState.flaskD.hasThermo) {
+ newState.flaskD.hasThermo = true;
+ inv.thermoD = false;
+ }
+ if (item === "stopperD" && !newState.flaskD.hasStopper) {
+ newState.flaskD.hasStopper = true;
+ inv.stopperD = false;
+ }
+ }
+
+ if (zone === "jar") {
+ if (item === "plant" && !newState.jar.hasPlant) {
+ newState.jar.hasPlant = true;
+ newState.jar.hasWrap = true;
+ inv.plant = false;
+ }
+ }
+
+ if (zone === "environment") {
+ if (item === "sun" && isSetupComplete(newState)) {
+ newState.isSunny = true;
+ inv.sun = false;
+ }
+ if (item === "stopwatch" && newState.isSunny) {
+ newState.isRunning = true;
+ inv.stopwatch = false;
+ }
+ }
+
+ return newState;
+ });
+ },
+ [isSetupComplete],
+ );
+
+ const handleItemPointerDown = (
+ e: ReactPointerEvent<HTMLDivElement>,
+ item: InventoryItem,
+ ) => {
+ e.preventDefault();
+ setDragInfo({
+ isDragging: true,
+ item,
+ x: e.clientX,
+ y: e.clientY,
+ });
+ };
+
+ useEffect(() => {
+ const handlePointerMove = (e: MouseEvent | TouchEvent) => {
+ const point = getClientPoint(e);
+ if (!point) {
+ return;
+ }
+ const { x: clientX, y: clientY } = point;
+
+ if (dragInfo.isDragging) {
+ setDragInfo((prev) => ({ ...prev, x: clientX, y: clientY }));
+
+ const dragOverlay = document.getElementById("drag-overlay");
+ if (dragOverlay) dragOverlay.style.visibility = "hidden";
+
+ const element = document.elementFromPoint(clientX, clientY);
+ const dropZone = element?.closest("[data-dropzone]");
+ setActiveDropZone(
+ dropZone
+ ? (dropZone.getAttribute("data-dropzone") as DropZone)
+ : null,
+ );
+
+ if (dragOverlay) dragOverlay.style.visibility = "visible";
+ }
+
+ if (hoseDrawing.isDrawing && workspaceRef.current) {
+ const workspaceRect = workspaceRef.current.getBoundingClientRect();
+ setHoseDrawing((prev) => ({
+ ...prev,
+ currentX: clientX - workspaceRect.left,
+ currentY: clientY - workspaceRect.top,
+ }));
+ }
+ };
+
+ const handlePointerUp = (e: MouseEvent | TouchEvent) => {
+ if (dragInfo.isDragging) {
+ const point = getClientPoint(e);
+ if (!point) {
+ return;
+ }
+ const { x: clientX, y: clientY } = point;
+
+ const dragOverlay = document.getElementById("drag-overlay");
+ if (dragOverlay) dragOverlay.style.visibility = "hidden";
+
+ const element = document.elementFromPoint(clientX, clientY);
+ const dropZoneEl = element?.closest("[data-dropzone]");
+ const targetZone = dropZoneEl?.getAttribute(
+ "data-dropzone",
+ ) as DropZone | null;
+
+ if (dragOverlay) dragOverlay.style.visibility = "visible";
+
+ if (targetZone && dragInfo.item) {
+ processAction(dragInfo.item, targetZone);
+ }
+
+ setDragInfo(initialDragInfo);
+ setActiveDropZone(null);
+ }
+
+ // Logika Penutup untuk Drag-and-Drop Selang
+ if (hoseDrawing.isDrawing) {
+ const point = getClientPoint(e);
+ if (!point) {
+ return;
+ }
+ const { x: clientX, y: clientY } = point;
+
+ const hoseOverlay = document.getElementById("hose-overlay");
+ if (hoseOverlay) hoseOverlay.style.visibility = "hidden";
+
+ const element = document.elementFromPoint(clientX, clientY);
+ const portEl = element?.closest("[data-port]");
+ const targetPortValue = portEl?.getAttribute("data-port");
+
+ if (hoseOverlay) hoseOverlay.style.visibility = "visible";
+
+ // Hanya pasangan port B<->C dan D<->J yang valid.
+ if (
+ hoseDrawing.startPort &&
+ isPortId(targetPortValue) &&
+ targetPortValue !== hoseDrawing.startPort
+ ) {
+ if (!tryConnectPorts(hoseDrawing.startPort, targetPortValue)) {
+ setHoseDrawing(initialHoseDrawing);
+ }
+ }
+ // Jika lepas jari di ruang kosong tapi cukup jauh dari awal (Batal Dragging)
+ else if (!targetPortValue) {
+ const startX = hoseDrawing.startPort
+ ? portCoords[hoseDrawing.startPort].x
+ : 0;
+ const startY = hoseDrawing.startPort
+ ? portCoords[hoseDrawing.startPort].y
+ : 0;
+ const dist = Math.hypot(
+ hoseDrawing.currentX - startX,
+ hoseDrawing.currentY - startY,
+ );
+ if (dist > 30) {
+ setHoseDrawing(initialHoseDrawing);
+ }
+ }
+ // Jika hanya menekan lalu lepas (dist < 30), maka biarkan isDrawing = true (transisi ke Mode Klik-ke-Klik)
+ }
+ };
+
+ if (dragInfo.isDragging || hoseDrawing.isDrawing) {
+ window.addEventListener("mousemove", handlePointerMove, {
+ passive: false,
+ });
+ window.addEventListener("touchmove", handlePointerMove, {
+ passive: false,
+ });
+ window.addEventListener("mouseup", handlePointerUp);
+ window.addEventListener("touchend", handlePointerUp);
+ }
+
+ return () => {
+ window.removeEventListener("mousemove", handlePointerMove);
+ window.removeEventListener("touchmove", handlePointerMove);
+ window.removeEventListener("mouseup", handlePointerUp);
+ window.removeEventListener("touchend", handlePointerUp);
+ };
+ }, [
+ dragInfo.isDragging,
+ hoseDrawing.isDrawing,
+ dragInfo.item,
+ hoseDrawing.startPort,
+ hoseDrawing.currentX,
+ hoseDrawing.currentY,
+ tryConnectPorts,
+ portCoords,
+ processAction,
+ ]);
+
+ const handlePortPointerDown = (
+ e: ReactPointerEvent<HTMLDivElement>,
+ portId: PortId,
+ ) => {
+ e.preventDefault();
+ e.stopPropagation();
+
+ // Pastikan koordinat port terbaru tersedia saat mode drag selang dimulai.
+ updatePortCoords();
+
+ if (isPortLocked(portId, state)) return;
+
+ // Perbaikan Bug Selang: Mode Klik-ke-Klik (Jika selang sudah mulai ditarik dan kita klik port lain)
+ if (hoseDrawing.isDrawing && hoseDrawing.startPort) {
+ if (hoseDrawing.startPort !== portId) {
+ if (!tryConnectPorts(hoseDrawing.startPort, portId)) {
+ setHoseDrawing(initialHoseDrawing);
+ }
+ } else {
+ // Klik port yang sama = batal
+ setHoseDrawing(initialHoseDrawing);
+ }
+ return;
+ }
+
+ // Mulai menggambar selang
+ const clientX = e.clientX;
+ const clientY = e.clientY;
+ if (!workspaceRef.current) {
+ return;
+ }
+ const workspaceRect = workspaceRef.current.getBoundingClientRect();
+
+ setHoseDrawing({
+ isDrawing: true,
+ startPort: portId,
+ currentX: clientX - workspaceRect.left,
+ currentY: clientY - workspaceRect.top,
+ });
+ };
+
+ const isLabFinished = state.time >= state.duration && state.time > 0;
+
+ const getInstruction = () => {
+ if (!state.flaskA.hasThermo || !state.flaskA.hasStopper)
+ return "1. Siapkan Tabung A: tarik Termometer A dan Gabus A ke Tabung A.";
+ if (!state.flaskB.hasThermo || !state.flaskB.hasStopper)
+ return "2. Siapkan Tabung B: tarik Termometer B dan Gabus B ke Tabung B.";
+
+ if (!state.flaskC.hasSoda) {
+ if (!state.scale.hasCylinder)
+ return "3. Tarik Gelas Ukur ke atas Timbangan.";
+ if (state.scale.sodaAmount === 0)
+ return "4. Tarik Baking Soda ke Timbangan atau Gelas Ukur untuk menimbang 10 ml.";
+ return "5. Tarik Gelas Ukur (yang berisi soda) ke Tabung C untuk menuangkannya.";
+ }
+
+ if (!state.flaskC.hasVinegar) return "6. Tarik Asam Cuka ke Tabung C.";
+ if (!state.flaskC.hasStopper) return "7. Tutup Tabung C dengan Gabus C.";
+ if (!state.hoseBCConnected)
+ return "8. Hubungkan selang 1: tekan titik Tabung B, lalu tekan titik Tabung C.";
+ if (!state.flaskD.hasThermo || !state.flaskD.hasStopper)
+ return "9. Siapkan Tabung D: tarik Termometer D dan Gabus D ke Tabung D.";
+ if (!state.jar.hasPlant) return "10. Tarik Tanaman ke Toples.";
+ if (!state.hoseDJConnected)
+ return "11. Hubungkan selang 2: tekan titik Tabung D, lalu tekan titik Toples.";
+ if (!state.isSunny)
+ return "12. Tarik Matahari ke area kosong untuk memindahkan set alat ke luar ruangan.";
+ if (!state.isRunning && state.time === 0)
+ return "13. Tarik stopwatch ke area kerja untuk mulai mengamati perbedaan suhu tabung A, B, dan D!";
+ if (state.time < state.duration)
+ return "Mengamati... (Perhatikan suhu di Tabung B naik lebih cepat karena CO2 dari Tabung C)";
+ return "Praktikum selesai! LKPD menampilkan perbandingan suhu Tabung A dan B tiap menit.";
+ };
+
+ const renderInvItem = (
+ id: InventoryItem,
+ emoji: string,
+ label: string,
+ extraClass = "",
+ ) => (
+ <div
+ key={id}
+ onPointerDown={(e) => handleItemPointerDown(e, id)}
+ className={`touch-none cursor-grab flex flex-col items-center justify-center p-2 rounded-lg b ${extraClass} 
+ ${dragInfo.item === id ? "opacity-50 border-dashed border-[#528C46]" : "bg-[#FDFCF8] border-[#C6E67D]/20 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] hover:bg-[#528C46]/5 hover:border-[#528C46]/50 active:scale-95"}`}
+ >
+ <span className="text-2xl pointer-events-none select-none">
+ {emoji}
+ </span>
+ <span className="text-[10px] text-center mt-1 text-[#0A110B] font-semibold pointer-events-none select-none leading-tight">
+ {label}
+ </span>
+ </div>
+ );
+
+ return (
+ <div className="flex h-[100vh] w-[100vw] flex-row overflow-hidden bg-[#FDFCF8] font-sans text-[#0A110B]">
+ {/* PANEL KIRI: INVENTORY — tinggi = 100vh */}
+ <div className="z-20 flex w-[35vw] h-full min-h-0 flex-col border-r border-[#C6E67D]/20 bg-[#FDFCF8] shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)]">
+ <div className="p-3 border-b border-[#C6E67D]/20 bg-[#FDFCF8]/90 sticky top-0 backdrop-blur-sm z-10">
+ <div className="flex items-center justify-between">
+ <div>
+ <h2 className="text-sm font-serif font-bold text-[#528C46]">
+ Rak Alat & Bahan
+ </h2>
+ <p className="text-[10px] text-[#6B7280]">
+ Sentuh & tarik ke area praktikum
+ </p>
+ </div>
+ <div className="flex items-center gap-2">
+ <button
+ onClick={onBack}
+ className="px-2.5 py-1.5 text-[10px] font-semibold rounded-lg b border-[#C6E67D]/30 text-[#6B7280] hover:bg-[#FDFCF8] active:scale-95 transition-all duration-150"
+ title="Kembali ke Awal"
+ >
+ ← Kembali
+ </button>
+ <button
+ onClick={handleReset}
+ className="px-2.5 py-1.5 text-[10px] font-semibold rounded-lg b border-foreground text-[#0A110B] hover:bg-foreground hover:text-white active:scale-95 transition-all duration-150"
+ title="Reset Lab"
+ >
+ ↺ Reset
+ </button>
+ </div>
+ </div>
+ </div>
+ <div className="flex-1 overflow-y-auto p-3">
+ <div className="grid grid-cols-3 gap-2 ">
+ {state.inventory.thermoA &&
+ renderInvItem("thermoA", "🌡️", "Thermo A")}
+ {state.inventory.thermoB &&
+ renderInvItem("thermoB", "🌡️", "Thermo B")}
+ {state.inventory.thermoD &&
+ renderInvItem("thermoD", "🌡️", "Thermo D")}
+ {state.inventory.stopperA &&
+ renderInvItem("stopperA", "🟫", "Gabus A")}
+ {state.inventory.stopperB &&
+ renderInvItem("stopperB", "🟫", "Gabus B")}
+ {state.inventory.stopperC &&
+ renderInvItem("stopperC", "🟫", "Gabus C")}
+ {state.inventory.stopperD &&
+ renderInvItem("stopperD", "🟫", "Gabus D")}
+ {state.inventory.plant && renderInvItem("plant", "🌱", "Tanaman")}
+ {state.inventory.cylinder &&
+ renderInvItem("cylinder", "🧪", "Gelas Ukur")}
+ {state.inventory.bakingSoda &&
+ renderInvItem("bakingSoda", "🧂", "Soda (10 ml)")}
+ {state.inventory.vinegar && renderInvItem("vinegar", "🧴", "Cuka")}
+ {state.inventory.sun &&
+ isSetupComplete(state) &&
+ renderInvItem(
+ "sun",
+ "☀️",
+ "Matahari",
+ "border-[#F59E0B] bg-[#F59E0B]/10 animate-pulse",
+ )}
+ {state.inventory.stopwatch &&
+ state.isSunny &&
+ renderInvItem(
+ "stopwatch",
+ "⏱️",
+ "Stopwatch",
+ "border-[#528C46] bg-[#528C46]/10 animate-pulse",
+ )}
+ </div>
+ </div>
+ </div>
+
+ {/* PANEL KANAN: AREA PRAKTIKUM & LKPD */}
+ <div className="relative flex flex-1 h-full min-h-0 flex-col overflow-hidden">
+ {/* Header Instruksi */}
+ <div className="bg-[#FDFCF8]/90 backdrop-blur-sm border-b border-[#C6E67D]/20 p-2 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] z-20 shrink-0">
+ <p className="text-xs text-[#0A110B] font-medium leading-tight">
+ <span className="font-bold text-[#528C46]">Instruksi:</span>{" "}
+ {getInstruction()}
+ </p>
+ </div>
+
+ <div className="flex min-flex-1 flex-col">
+ {/* Meja Praktikum (Area Interaktif) */}
+ <div
+ ref={workspaceRef}
+ className={`relative flex min-h-0 flex-[1.1] touch-none flex-col overflow-hidden transition-colors duration-1000 
+ ${state.isSunny ? "bg-[#528C46]/10" : "bg-muted-foreground/5"}
+ ${activeDropZone === "environment" ? "ring-inset ring-4 ring-primary/50" : ""}`}
+ data-dropzone="environment"
+ >
+ {state.isSunny && (
+ <div className="absolute top-2 right-2 opacity-80 pointer-events-none animate-spin-slow">
+ <SunSVG />
+ </div>
+ )}
+
+ {/* OVERLAY SELANG: Melengkung ke atas rapih seperti jembatan pipa lab */}
+ <svg
+ id="hose-overlay"
+ className="absolute inset-0 w-full h-full pointer-events-none z-30"
+ >
+ {state.hoseBCConnected &&
+ hasMeasuredPortCoords(portCoords, "B") &&
+ hasMeasuredPortCoords(portCoords, "C") && (
+ <path
+ d={`M ${portCoords.B.x} ${portCoords.B.y} Q ${(portCoords.B.x + portCoords.C.x) / 2} ${Math.min(portCoords.B.y, portCoords.C.y) - 80} ${portCoords.C.x} ${portCoords.C.y}`}
+ fill="none"
+ stroke="#22c55e"
+ strokeWidth="8"
+ strokeLinecap="round"
+ style={{ filter: "drop-shadow(0 3px 2px rgba(0,0,0,0.3))" }}
+ />
+ )}
+ {state.hoseDJConnected &&
+ hasMeasuredPortCoords(portCoords, "D") &&
+ hasMeasuredPortCoords(portCoords, "J") && (
+ <path
+ d={`M ${portCoords.D.x} ${portCoords.D.y} Q ${(portCoords.D.x + portCoords.J.x) / 2} ${Math.min(portCoords.D.y, portCoords.J.y) - 70} ${portCoords.J.x} ${portCoords.J.y}`}
+ fill="none"
+ stroke="#0ea5e9"
+ strokeWidth="8"
+ strokeLinecap="round"
+ style={{
+ filter: "drop-shadow(0 3px 2px rgba(0,0,0,0.25))",
+ }}
+ />
+ )}
+ {hoseDrawing.isDrawing &&
+ hoseDrawing.startPort &&
+ hasMeasuredPortCoords(portCoords, hoseDrawing.startPort) && (
+ <path
+ d={`M ${portCoords[hoseDrawing.startPort].x} ${portCoords[hoseDrawing.startPort].y} Q ${(portCoords[hoseDrawing.startPort].x + hoseDrawing.currentX) / 2} ${Math.min(portCoords[hoseDrawing.startPort].y, hoseDrawing.currentY) - 50} ${hoseDrawing.currentX} ${hoseDrawing.currentY}`}
+ fill="none"
+ stroke="#4ade80"
+ strokeWidth="6"
+ strokeLinecap="round"
+ strokeDasharray="10 5"
+ className="opacity-70"
+ />
+ )}
+ </svg>
+
+ {/* Area Penempatan Tabung dan Timbangan */}
+ <div className="z-20 flex flex-1 flex-wrap content-end items-end justify-around gap-2 px-2 pb-8 pt-2 ">
+ {/* Tabung A */}
+ <div
+ className={`relative flex w-14 flex-col items-center transition-transform ${activeDropZone === "flaskA" ? "scale-110 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" : ""}`}
+ data-dropzone="flaskA"
+ >
+ {state.flaskA.hasThermo && (
+ <div className="absolute -top-6 bg-slate-900/90 text-white px-2 py-0.5 rounded text-[10px] font-mono border border-slate-700 whitespace-nowrap">
+ {state.flaskA.temp.toFixed(1)}°C
+ </div>
+ )}
+ <ErlenmeyerSVG
+ label="A"
+ hasThermo={state.flaskA.hasThermo}
+ hasStopper={state.flaskA.hasStopper}
+ />
+ </div>
+
+ {/* Tabung B */}
+ <div
+ className={`relative flex w-14 flex-col items-center transition-transform ${activeDropZone === "flaskB" ? "scale-110 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" : ""}`}
+ data-dropzone="flaskB"
+ >
+ {state.flaskB.hasThermo && (
+ <div className="absolute -top-6 bg-slate-900/90 text-white px-2 py-0.5 rounded text-[10px] font-mono border border-slate-700 whitespace-nowrap">
+ {state.flaskB.temp.toFixed(1)}°C
+ </div>
+ )}
+ <ErlenmeyerSVG
+ label="B"
+ hasThermo={state.flaskB.hasThermo}
+ hasStopper={state.flaskB.hasStopper}
+ />
+
+ {/* Port Selang B */}
+ <div
+ ref={portBRef}
+ data-port="B"
+ onPointerDown={(e) => handlePortPointerDown(e, "B")}
+ className={`absolute top-[12%] left-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 transform rounded-full border-[3px] touch-none z-40 cursor-pointer shadow-sm 
+ ${state.hoseBCConnected ? "bg-[#528C46] border-foreground" : "bg-[#FDFCF8] border-foreground hover:bg-[#528C46]/30 hover:scale-125 animate-pulse"}`}
+ ></div>
+ </div>
+
+ {/* Tabung C */}
+ <div
+ className={`relative flex w-14 flex-col items-center transition-transform ${activeDropZone === "flaskC" ? "scale-110 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" : ""}`}
+ data-dropzone="flaskC"
+ >
+ <ErlenmeyerSVG
+ label="C"
+ hasStopper={state.flaskC.hasStopper}
+ hasSoda={state.flaskC.hasSoda}
+ hasVinegar={state.flaskC.hasVinegar}
+ isBubbling={state.flaskC.hasSoda && state.flaskC.hasVinegar}
+ />
+
+ {/* Port Selang C */}
+ <div
+ ref={portCRef}
+ data-port="C"
+ onPointerDown={(e) => handlePortPointerDown(e, "C")}
+ className={`absolute top-[12%] left-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 transform rounded-full border-[3px] touch-none z-40 cursor-pointer shadow-sm 
+ ${state.hoseBCConnected ? "bg-[#528C46] border-foreground" : "bg-[#FDFCF8] border-foreground hover:bg-[#528C46]/30 hover:scale-125 animate-pulse"}`}
+ ></div>
+ </div>
+
+ {/* Tabung D */}
+ <div
+ className={`relative flex w-14 flex-col items-center transition-transform ${activeDropZone === "flaskD" ? "scale-110 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" : ""}`}
+ data-dropzone="flaskD"
+ >
+ {state.flaskD.hasThermo && (
+ <div className="absolute -top-6 bg-slate-900/90 text-white px-2 py-0.5 rounded text-[10px] font-mono border border-slate-700 whitespace-nowrap">
+ {state.flaskD.temp.toFixed(1)}°C
+ </div>
+ )}
+ <ErlenmeyerSVG
+ label="D"
+ hasThermo={state.flaskD.hasThermo}
+ hasStopper={state.flaskD.hasStopper}
+ />
+
+ {/* Port Selang D */}
+ <div
+ ref={portDRef}
+ data-port="D"
+ onPointerDown={(e) => handlePortPointerDown(e, "D")}
+ className={`absolute top-[12%] left-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 transform rounded-full border-[3px] touch-none z-40 cursor-pointer shadow-sm 
+ ${state.hoseDJConnected ? "bg-[#528C46] border-foreground" : "bg-[#FDFCF8] border-foreground hover:bg-[#528C46]/30 hover:scale-125 animate-pulse"}`}
+ ></div>
+ </div>
+
+ {/* Toples Tanaman */}
+ <div
+ className={`relative flex w-16 flex-col items-center transition-transform ${activeDropZone === "jar" ? "scale-105 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" : ""}`}
+ data-dropzone="jar"
+ >
+ <ToplesSVG
+ hasPlant={state.jar.hasPlant}
+ hasWrap={state.jar.hasWrap}
+ />
+
+ {/* Port Selang Toples */}
+ <div
+ ref={portJRef}
+ data-port="J"
+ onPointerDown={(e) => handlePortPointerDown(e, "J")}
+ className={`absolute top-[24%] right-[16%] h-9 w-9 rounded-full border-[3px] touch-none z-40 cursor-pointer shadow-sm 
+ ${state.hoseDJConnected ? "bg-[#528C46] border-foreground" : "bg-[#FDFCF8] border-foreground hover:bg-[#528C46]/30 hover:scale-125 animate-pulse"}`}
+ ></div>
+
+ <p className="text-[10px] text-[#6B7280] font-semibold mt-1 text-center">
+ {state.jar.hasPlant
+ ? "Tanaman siap, wrap terpasang"
+ : "Drop Tanaman ke Toples"}
+ </p>
+ </div>
+
+ {/* Area Timbangan & Gelas Ukur */}
+ <div
+ className={`relative flex h-20 w-16 flex-col items-center justify-end transition-transform ${activeDropZone === "scale" ? "scale-105 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" : ""}`}
+ data-dropzone="scale"
+ >
+ {state.scale.hasCylinder && (
+ <div
+ className="w-8 h-16 mb-[-10%] z-20 touch-none cursor-grab"
+ onPointerDown={(e) => handleItemPointerDown(e, "cylinder")}
+ >
+ <GelasUkurSVG sodaAmount={state.scale.sodaAmount} />
+ </div>
+ )}
+ <div className="w-full h-12 z-10">
+ <TimbanganSVG
+ value={
+ state.scale.hasCylinder
+ ? state.scale.sodaAmount > 0
+ ? 10.0
+ : 0.0
+ : 0.0
+ }
+ />
+ </div>
+ </div>
+ </div>
+
+ {/* Meja Kayu (Landasan Bawah) */}
+ <div className="absolute bottom-0 w-full h-8 bg-[#FDFCF8] border-t border-[#C6E67D]/20 z-10 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]"></div>
+ </div>
+
+ {/* Panel LKPD (Bawah) */}
+ <div className="z-40 flex min-flex-1 flex-col border-t-2 border-[#C6E67D]/20 bg-[#FDFCF8] shadow-[0px_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+ <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#C6E67D]/20 bg-[#FDFCF8] px-3 py-1.5 ">
+ <h3 className="font-serif font-bold text-xs text-[#528C46]">
+ 📝 LKPD Data Suhu
+ </h3>
+ <div className="flex flex-wrap items-center justify-end gap-2">
+ {/* Durasi Custom */}
+ <div className="flex items-center gap-1 text-[10px] ">
+ <label
+ htmlFor="duration-input"
+ className="text-[#6B7280] font-medium"
+ >
+ Durasi:
+ </label>
+ <input
+ id="duration-input"
+ type="number"
+ min="5"
+ value={durationInput}
+ onChange={(e) => handleDurationChange(e.target.value)}
+ onBlur={handleDurationBlur}
+ disabled={state.isRunning || isLabFinished}
+ className="w-12 rounded border border-[#C6E67D]/30 bg-[#FDFCF8] px-1.5 py-0.5 text-center font-sans font-semibold text-[#0A110B] focus:border-[#528C46] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 "
+ />
+ <span className="text-[#6B7280]">mnt</span>
+ </div>
+ <div className="rounded border border-[#528C46]/20 bg-[#FDFCF8] px-2 py-0.5 font-sans text-xs font-semibold text-[#528C46] ">
+ Waktu: {state.time}/{state.duration} Menit
+ </div>
+ </div>
+ </div>
+ <div className="flex-1 overflow-auto">
+ <table className="w-max min-w-full text-left text-[11px] ">
+ <thead className="sticky top-0 border-b border-[#C6E67D]/20 bg-[#FDFCF8] text-[#0A110B]">
+ <tr>
+ <th className="p-1.5 pl-4 font-semibold ">
+ Menit ke-
+ </th>
+ <th className="p-1.5 font-semibold ">
+ Tabung A (Kontrol)
+ </th>
+ <th className="p-1.5 font-semibold ">
+ Tabung B (+CO2)
+ </th>
+ <th className="p-1.5 font-semibold ">
+ Tabung D (Toples)
+ </th>
+ </tr>
+ </thead>
+ <tbody className="divide-y divide-border/10">
+ {state.logs.length === 0 ? (
+ <tr>
+ <td
+ colSpan={4}
+ className="p-3 text-center italic text-[#6B7280]"
+ >
+ Mulai stopwatch untuk mencatat data.
+ </td>
+ </tr>
+ ) : (
+ state.logs.map((log) => (
+ <tr
+ key={log.time}
+ className="transition-colors hover:bg-[#FDFCF8]/50"
+ >
+ <td className="p-1.5 pl-4 font-sans font-semibold text-[#0A110B] ">
+ {log.time}
+ </td>
+ <td className="p-1.5 font-sans text-[#6B7280] ">
+ {log.tempA} °C
+ </td>
+ <td className="p-1.5 font-sans font-bold text-[#528C46] ">
+ {log.tempB} °C{" "}
+ {parseFloat(log.tempB) > parseFloat(log.tempA)
+ ? "🔥"
+ : ""}
+ </td>
+ <td className="p-1.5 font-sans text-[#6B7280] ">
+ {log.tempD} °C
+ </td>
+ </tr>
+ ))
+ )}
+ </tbody>
+ </table>
+ </div>
+
+ {/* Footer: Tombol Reset setelah selesai */}
+ {isLabFinished && (
+ <div className="flex items-center justify-center gap-3 border-t border-[#C6E67D]/20 bg-[#FDFCF8] p-3">
+ <p className="text-xs font-semibold text-[#528C46] ">
+ ✅ Praktikum Selesai!
+ </p>
+ <button
+ onClick={handleReset}
+ className="rounded-lg bg-[#528C46] px-4 py-1.5 text-xs font-semibold text-white transition-all duration-150 hover:bg-[#528C46]/90 active:scale-95 "
+ >
+ ↺ Ulangi Percobaan
+ </button>
+ </div>
+ )}
+ </div>
+ </div>
+ </div>
+
+ {/* RENDER ITEM DRAG (OVERLAY KUSTOM) */}
+ {dragInfo.isDragging && (
+ <div
+ id="drag-overlay"
+ className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-2xl scale-110"
+ style={{ left: dragInfo.x, top: dragInfo.y }}
+ >
+ <div className="bg-[#FDFCF8] p-3 rounded-xl b border-[#528C46] shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+ <span className="text-4xl">
+ {dragInfo.item === "thermoA" ||
+ dragInfo.item === "thermoB" ||
+ dragInfo.item === "thermoD"
+ ? "🌡️"
+ : ""}
+ {dragInfo.item === "stopperA" ||
+ dragInfo.item === "stopperB" ||
+ dragInfo.item === "stopperC" ||
+ dragInfo.item === "stopperD"
+ ? "🟫"
+ : ""}
+ {dragInfo.item === "plant" ? "🌱" : ""}
+ {dragInfo.item === "cylinder" ? "🧪" : ""}
+ {dragInfo.item === "bakingSoda" ? "🧂" : ""}
+ {dragInfo.item === "vinegar" ? "🧴" : ""}
+ {dragInfo.item === "sun" ? "☀️" : ""}
+ {dragInfo.item === "stopwatch" ? "⏱️" : ""}
+ </span>
+ </div>
+ </div>
+ )}
+ </div>
+ );
+}
