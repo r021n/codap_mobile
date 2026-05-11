@@ -847,7 +847,7 @@ export default function AirQualityMeasurementLab({
 
  // Load CSV data
  useEffect(() => {
- fetch("/data/udara_24.csv")
+ fetch("./data/udara_24.csv")
  .then((res) => res.text())
  .then((text) => {
  const parsed = parseCSV(text);
