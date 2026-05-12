@@ -224,6 +224,17 @@ function App() {
 
         <button
           onClick={() => {
+            // Clear all chat histories from localStorage
+            const chatKeys = [
+              "chat_history_investigation",
+              "chat_history_literacy",
+              "chat_history_literacy2",
+              "chat_history_literacy3",
+              "chat_history_literacy5",
+              "chat_history_analysis",
+            ];
+            chatKeys.forEach((key) => localStorage.removeItem(key));
+
             setStep("onboarding");
             setUserData(null);
           }}
