@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { sendChatMessage, toGeminiMessages } from '../services/aiService';
+import ReactMarkdown from 'react-markdown';
 
 export interface ChatMessage {
   id: string;
@@ -17,7 +19,9 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
   const [allMessages, setAllMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   // Load from localStorage or use initial messages
   useEffect(() => {
@@ -47,9 +51,14 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
     }
   }, [allMessages, isTyping]);
 
-  if (!isOpen) return null;
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
-  const handleSend = () => {
+  const handleSend = useCallback(async () => {
     if (!inputValue.trim() || isTyping) return;
 
     const userMessage: ChatMessage = {
@@ -58,28 +67,57 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
       text: inputValue.trim(),
     };
 
-    const newMessages = [...allMessages, userMessage];
-    setAllMessages(newMessages);
+    const updatedMessages = [...allMessages, userMessage];
+    setAllMessages(updatedMessages);
     setInputValue('');
     setIsTyping(true);
+    setError(null);
 
-    // Simulate AI response delay
-    setTimeout(() => {
+    try {
+      // Convert the full conversation history to Gemini format
+      const geminiMessages = toGeminiMessages(updatedMessages);
+
+      // Call the Cloudflare Worker → Gemini API
+      const responseText = await sendChatMessage(geminiMessages);
+
       const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: "Terima kasih atas pertanyaannya! Saya sedang menganalisis data Anda. Ini adalah respon otomatis sementara untuk membantu Anda memahami langkah selanjutnya.",
+        text: responseText,
       };
       setAllMessages((prev) => [...prev, aiResponse]);
+    } catch (err) {
+      console.error('AI Chat error:', err);
+      const errorMessage =
+        err instanceof Error ? err.message : 'Terjadi kesalahan yang tidak diketahui';
+
+      setError(errorMessage);
+
+      // Add a fallback error message to chat
+      const fallbackMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        text: `⚠️ Maaf, terjadi kesalahan saat menghubungi AI. Silakan coba lagi.\n\n_Detail: ${errorMessage}_`,
+      };
+      setAllMessages((prev) => [...prev, fallbackMessage]);
+    } finally {
       setIsTyping(false);
-    }, 2000);
-  };
+    }
+  }, [inputValue, isTyping, allMessages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSend();
     }
   };
+
+  const handleClearHistory = () => {
+    localStorage.removeItem(storageKey);
+    setAllMessages(messages);
+    setError(null);
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-60 flex items-end justify-end pointer-events-none">
@@ -89,7 +127,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
         onClick={onClose}
       ></div>
 
-      <div className="w-[320px] h-full bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.15)] border-l border-[#C6E67D]/30 flex flex-col overflow-hidden animate-slide-right pointer-events-auto relative z-10">
+      <div className="w-4/5 h-full bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.15)] border-l border-[#C6E67D]/30 flex flex-col overflow-hidden animate-slide-right pointer-events-auto relative z-10">
         {/* Header */}
         <div className="px-6 py-6 flex justify-between items-center shrink-0 border-b border-gray-100 bg-[#FDFCF8]/30">
           <div className="flex items-center gap-4">
@@ -106,19 +144,41 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
                 Asisten AI
               </h3>
               <p className="text-[10px] font-bold text-[#528C46] uppercase tracking-widest mt-0.5">
-                Cerdas & Responsif
+                Gemini Powered
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-2xl hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all duration-300 group"
-          >
-            <span className="material-symbols-outlined text-2xl text-[#6B7280] group-hover:rotate-90 transition-transform">
-              close
-            </span>
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleClearHistory}
+              title="Hapus riwayat chat"
+              className="w-10 h-10 rounded-2xl hover:bg-amber-50 hover:text-amber-600 flex items-center justify-center transition-all duration-300 group"
+            >
+              <span className="material-symbols-outlined text-xl text-[#6B7280] group-hover:text-amber-600 transition-colors">
+                delete_sweep
+              </span>
+            </button>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 rounded-2xl hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all duration-300 group"
+            >
+              <span className="material-symbols-outlined text-2xl text-[#6B7280] group-hover:rotate-90 transition-transform">
+                close
+              </span>
+            </button>
+          </div>
         </div>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="px-4 py-2 bg-red-50 border-b border-red-100 flex items-center gap-2">
+            <span className="material-symbols-outlined text-red-500 text-sm">error</span>
+            <p className="text-[10px] text-red-600 flex-1 truncate">{error}</p>
+            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">
+              <span className="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+        )}
 
         {/* Chat Body */}
         <div 
@@ -154,13 +214,73 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
                     : 'bg-white border border-[#C6E67D]/20 rounded-bl-none'
                 }`}
               >
-                <p
+                <div
                   className={`text-xs leading-relaxed ${
-                    msg.sender === 'user' ? 'font-medium' : 'text-[#0A110B]'
+                    msg.sender === "user" ? "font-medium" : "text-[#0A110B]"
                   }`}
                 >
-                  {msg.text}
-                </p>
+                  {msg.sender === "user" ? (
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                  ) : (
+                    <ReactMarkdown
+                      components={{
+                        p: ({ children }) => (
+                          <p className="mb-2 last:mb-0">{children}</p>
+                        ),
+                        h1: ({ children }) => (
+                          <h1 className="text-[14px] font-black mb-2 mt-3">
+                            {children}
+                          </h1>
+                        ),
+                        h2: ({ children }) => (
+                          <h2 className="text-[13px] font-black mb-2 mt-3">
+                            {children}
+                          </h2>
+                        ),
+                        h3: ({ children }) => (
+                          <h3 className="text-[12px] font-bold mb-1 mt-2">
+                            {children}
+                          </h3>
+                        ),
+                        ul: ({ children }) => (
+                          <ul className="list-disc ml-4 mb-2 space-y-1">
+                            {children}
+                          </ul>
+                        ),
+                        ol: ({ children }) => (
+                          <ol className="list-decimal ml-4 mb-2 space-y-1">
+                            {children}
+                          </ol>
+                        ),
+                        li: ({ children }) => (
+                          <li className="pl-1">{children}</li>
+                        ),
+                        code: ({ children }) => (
+                          <code className="bg-gray-100 px-1 rounded text-[10px] font-mono">
+                            {children}
+                          </code>
+                        ),
+                        a: ({ children, href }) => (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#528C46] font-bold underline hover:text-[#3d6934]"
+                          >
+                            {children}
+                          </a>
+                        ),
+                        strong: ({ children }) => (
+                          <strong className="font-black text-[#528C46]">
+                            {children}
+                          </strong>
+                        ),
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -189,7 +309,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder={isTyping ? "AI sedang mengetik..." : "Ketik pesan..."}
+              placeholder={isTyping ? "AI sedang berpikir..." : "Ketik pesan..."}
               className="flex-1 bg-transparent border-none outline-none text-xs px-2 text-[#0A110B] placeholder:text-gray-400"
               disabled={isTyping}
             />
@@ -208,7 +328,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
             </button>
           </div>
           <p className="text-[9px] text-center text-gray-400 mt-2 italic">
-            AI dapat memberikan jawaban yang tidak akurat.
+            Powered by Gemini AI — Jawaban dapat tidak akurat.
           </p>
         </div>
       </div>
