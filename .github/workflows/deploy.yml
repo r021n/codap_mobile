@@ -27,6 +27,8 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_AI_WORKER_URL: ${{ secrets.VITE_AI_WORKER_URL }}
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3

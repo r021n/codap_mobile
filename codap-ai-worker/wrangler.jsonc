@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "codap-ai-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-05-07",
+
+  // Non-sensitive environment variables
+  "vars": {
+    // Model name can be changed here without redeploying code
+    // Examples: "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"
+    "GEMINI_MODEL": "gemma-4-26b-a4b-it",
+    // Allowed origins for CORS (comma-separated for multiple)
+    "ALLOWED_ORIGINS": "*"
+  }
+
+  // IMPORTANT: Do NOT put GEMINI_API_KEY here!
+  // Use: npx wrangler secret put GEMINI_API_KEY
+  // For local dev: create a .dev.vars file with GEMINI_API_KEY=your_key
+}
