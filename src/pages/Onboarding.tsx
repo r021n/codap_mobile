@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import envImg from "../assets/screen_1/env.png";
 
 interface OnboardingProps {
@@ -6,10 +7,52 @@ interface OnboardingProps {
 }
 
 const Onboarding = ({ onStart }: OnboardingProps) => {
+  const { user, logout } = useAuth();
   const [isReady, setIsReady] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   return (
-    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B]">
+    <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B] relative">
+      {/* Logout Button (Conditional) */}
+      {user && (
+        <button
+          onClick={() => setShowLogoutModal(true)}
+          className="absolute top-5 right-5 z-20 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 text-[#6B7280] hover:text-red-500 hover:border-red-200 transition-all duration-300 group"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider group-hover:block hidden">Logout</span>
+          <span className="material-symbols-outlined text-[18px]">logout</span>
+        </button>
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0A110B]/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-[280px] rounded-3xl p-6 shadow-2xl border border-[#C6E67D]/20 animate-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mb-4 text-red-500">
+              <span className="material-symbols-outlined text-2xl">logout</span>
+            </div>
+            <h2 className="text-lg font-bold text-[#0A110B] mb-1">Konfirmasi Logout</h2>
+            <p className="text-[11px] text-[#6B7280] mb-5 leading-relaxed">Apakah kamu yakin ingin keluar dari akun?</p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 py-2 rounded-full font-bold text-[10px] uppercase tracking-widest text-[#6B7280] bg-gray-50 hover:bg-gray-100 transition-all"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  logout();
+                  setShowLogoutModal(false);
+                }}
+                className="flex-1 py-2 rounded-full font-bold text-[10px] uppercase tracking-widest text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200 transition-all"
+              >
+                Ya, Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Left Column - Image Section */}
       <div className="w-[45%] h-full flex justify-center items-center p-5 relative overflow-hidden shrink-0">
         {/* Decorative background shapes */}

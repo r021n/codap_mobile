@@ -2,9 +2,10 @@ import React from "react";
 
 interface InstructionsProps {
   onNext: () => void;
+  onBack: () => void;
 }
 
-const Instructions: React.FC<InstructionsProps> = ({ onNext }) => {
+const Instructions: React.FC<InstructionsProps> = ({ onNext, onBack }) => {
   const guideItems = [
     { icon: "arrow_back", label: "Kembali" },
     { icon: "arrow_forward", label: "Lanjut" },
@@ -20,12 +21,22 @@ const Instructions: React.FC<InstructionsProps> = ({ onNext }) => {
   return (
     <div className="w-screen h-screen bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B]">
       {/* Left Column - Visual/Greeting */}
-      <div className="w-[40%] h-full bg-[#C6E67D] p-6 relative flex flex-col justify-center items-start overflow-hidden shrink-0 rounded-r-3xl shadow-sm">
+      <div className="w-[40%] h-full bg-[#C6E67D] p-6 relative flex flex-col justify-between items-start overflow-hidden shrink-0 rounded-r-3xl shadow-sm">
         {/* Decorative background shapes */}
         <div className="absolute top-[-10%] left-[-10%] w-48 h-48 bg-white/30 rounded-full blur-2xl"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-48 h-48 bg-[#528C46]/20 rounded-full blur-2xl"></div>
 
-        <div className="relative z-10 flex flex-col gap-2">
+        {/* Back Button */}
+        <button
+          onClick={onBack}
+          className="relative z-20 w-8 h-8 bg-white rounded-full border border-[#C6E67D]/30 shadow-sm flex items-center justify-center hover:bg-[#528C46] group transition-all duration-300 shrink-0"
+        >
+          <span className="material-symbols-outlined text-[18px] text-[#528C46] group-hover:text-white transition-colors">
+            arrow_back
+          </span>
+        </button>
+
+        <div className="relative z-10 flex flex-col gap-2 mb-auto mt-6">
           <div className="inline-block self-start px-3 py-1 bg-[#528C46] text-white text-[10px] font-bold rounded-full tracking-wider uppercase">
             Panduan
           </div>

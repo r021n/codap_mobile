@@ -3,9 +3,10 @@ import { useAuth } from "../context/AuthContext";
 
 interface ObservationProps {
   onNext: () => void;
+  onBack: () => void;
 }
 
-const Observation: React.FC<ObservationProps> = ({ onNext }) => {
+const Observation: React.FC<ObservationProps> = ({ onNext, onBack }) => {
   const { completedPages, markPageCompleted } = useAuth();
   const isCompleted = completedPages.includes("observation");
 
@@ -20,9 +21,19 @@ const Observation: React.FC<ObservationProps> = ({ onNext }) => {
   return (
     <div className="w-screen h-screen bg-[#FDFCF8] flex flex-col p-3 overflow-hidden font-sans selection:bg-[#C6E67D] selection:text-[#0A110B]">
       {/* Top Header Section */}
-      <div className="flex justify-between items-center mb-2 shrink-0">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {/* SEP NGSS Icon Badge */}
+      <div className="flex justify-between items-center mb-2 shrink-0 gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <button
+            onClick={onBack}
+            className="w-8 h-8 bg-white rounded-full border border-[#C6E67D]/30 shadow-sm flex items-center justify-center hover:bg-[#528C46] group transition-all duration-300 shrink-0"
+          >
+            <span className="material-symbols-outlined text-[18px] text-[#528C46] group-hover:text-white transition-colors">
+              arrow_back
+            </span>
+          </button>
+
+          <div className="flex gap-2 overflow-x-auto no-scrollbar flex-1">
+            {/* SEP NGSS Icon Badge */}
           <div className="bg-white px-3 py-1.5 rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 group hover:border-[#528C46] transition-all duration-300 shrink-0">
             <span className="material-symbols-outlined text-[#528C46] text-[20px] group-hover:scale-110 transition-transform duration-300">
               science
@@ -50,6 +61,7 @@ const Observation: React.FC<ObservationProps> = ({ onNext }) => {
                 Individu
               </span>
             </div>
+          </div>
           </div>
         </div>
 

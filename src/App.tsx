@@ -34,7 +34,11 @@ function App() {
   >("onboarding");
 
   const handleOnboardingComplete = () => {
-    setStep("registration");
+    if (user) {
+      setStep("instructions");
+    } else {
+      setStep("registration");
+    }
   };
 
   const handleRegistrationComplete = () => {
@@ -117,6 +121,14 @@ function App() {
     setStep("analysis");
   };
 
+  const handleBackToInstructions = () => {
+    setStep("instructions");
+  };
+
+  const handleBackToOnboarding = () => {
+    setStep("onboarding");
+  };
+
   if (step === "onboarding") {
     return <Onboarding onStart={handleOnboardingComplete} />;
   }
@@ -140,11 +152,15 @@ function App() {
   }
 
   if (step === "instructions") {
-    return <Instructions onNext={handleInstructionsComplete} />;
+    return (
+      <Instructions onNext={handleInstructionsComplete} onBack={handleBackToOnboarding} />
+    );
   }
 
   if (step === "observation") {
-    return <Observation onNext={handleObservationComplete} />;
+    return (
+      <Observation onNext={handleObservationComplete} onBack={handleBackToInstructions} />
+    );
   }
 
   if (step === "observation2") {
@@ -256,7 +272,6 @@ function App() {
             chatKeys.forEach((key) => localStorage.removeItem(key));
 
             setStep("onboarding");
-            logout();
           }}
           className="w-full py-3 bg-[#0A110B] text-white rounded-full font-bold text-xs uppercase tracking-widest shadow-lg hover:bg-[#528C46] transition-all flex items-center justify-center gap-2 group"
         >
