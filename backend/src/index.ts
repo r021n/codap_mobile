@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import authRoutes from './routes/auth.js';
+import progressRoutes from './routes/progress.js';
 
 const app = new Hono();
 
@@ -20,6 +21,7 @@ app.get('/', (c) => {
 
 // Register routes
 app.route('/api/auth', authRoutes);
+app.route('/api/progress', progressRoutes);
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 console.log(`Server is running on port ${port}`);

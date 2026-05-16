@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text, primaryKey } from 'drizzle-orm/sqlite-core';
 
 export const usersTable = sqliteTable('users', {
   id: integer('id').primaryKey(),
@@ -17,3 +17,19 @@ export const usersTable = sqliteTable('users', {
 
 export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
+
+export const userProgressTable = sqliteTable('user_progress', {
+  userId: integer('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  pageName: text('page_name').notNull(),
+  completedAt: text('completed_at')
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.userId, table.pageName] }),
+  };
+});
+
+export type InsertUserProgress = typeof userProgressTable.$inferInsert;
+export type SelectUserProgress = typeof userProgressTable.$inferSelect;
+

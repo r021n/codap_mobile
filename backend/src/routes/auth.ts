@@ -75,7 +75,7 @@ authRoutes.post('/login', async (c) => {
       username: user.username,
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days expiration
     };
-    const token = await sign(payload, secret);
+    const token = await sign(payload, secret, 'HS256');
 
     return c.json({
       message: 'Login successful',
