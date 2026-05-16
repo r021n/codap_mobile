@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 interface Literacy4Props {
   onNext: () => void;
@@ -6,6 +7,9 @@ interface Literacy4Props {
 }
 
 const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
+  const { completedPages, markPageCompleted } = useAuth();
+  const isCompleted = completedPages.includes("literacy4");
+
   const [showLinkModal, setShowLinkModal] = useState(false);
 
   const tasks = [
@@ -61,10 +65,15 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
           </div>
         </div>
 
-        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2">
+        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2 flex items-center gap-2">
           <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest whitespace-nowrap">
             Literasi Data
           </h1>
+          {isCompleted && (
+            <span className="material-symbols-outlined text-[#528C46] text-[16px]">
+              check_circle
+            </span>
+          )}
         </div>
       </div>
 
@@ -147,7 +156,10 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
             {/* Action Button */}
             <div className="mt-4 shrink-0">
               <button
-                onClick={onNext}
+                onClick={async () => {
+                  await markPageCompleted("literacy4");
+                  onNext();
+                }}
                 className="w-full py-3 bg-[#0A110B] text-white rounded-full font-bold text-[11px] uppercase tracking-widest shadow-md hover:bg-[#528C46] active:translate-y-0.5 transition-all flex items-center justify-center gap-2"
               >
                 Ke Tahap Berikutnya

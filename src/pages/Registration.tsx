@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { api } from "../services/api";
 
 interface RegistrationProps {
   onComplete: (data: any) => void;
@@ -32,6 +33,9 @@ const Registration = ({ onComplete, onSwitch }: RegistrationProps) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const isFormValid =
     formData.fullName.trim() !== "" &&
     formData.username.trim() !== "" &&
@@ -42,10 +46,20 @@ const Registration = ({ onComplete, onSwitch }: RegistrationProps) => {
     formData.className.length > 3 &&
     formData.attendanceNumber !== "";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
-      onComplete(formData);
+      setIsLoading(true);
+      setError("");
+      try {
+        const { confirmPassword, ...registerData } = formData;
+        await api.register(registerData);
+        onComplete(registerData);
+      } catch (err: any) {
+        setError(err.message || "Terjadi kesalahan saat registrasi");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -280,18 +294,26 @@ const Registration = ({ onComplete, onSwitch }: RegistrationProps) => {
               )}
           </div>
 
+          {error && (
+            <div className="col-span-2 ml-2 -mt-1">
+              <p className="text-[9px] text-red-500 font-bold italic">
+                * {error}
+              </p>
+            </div>
+          )}
+
           {/* Submit Button */}
           <div className="pt-2 flex flex-col gap-2">
             <button
               type="submit"
-              disabled={!isFormValid}
+              disabled={!isFormValid || isLoading}
               className={`w-full py-2.5 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 shadow-sm ${
-                isFormValid
+                isFormValid && !isLoading
                   ? "bg-[#0A110B] text-white hover:bg-black active:translate-y-0.5 cursor-pointer"
                   : "bg-[#0A110B]/20 text-[#0A110B]/50 cursor-not-allowed"
               }`}
             >
-              Lanjutkan
+              {isLoading ? "Memproses..." : "Lanjutkan"}
             </button>
 
             {/* Switch to Login */}

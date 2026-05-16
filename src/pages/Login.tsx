@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { api } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 interface LoginProps {
   onComplete: (data: any) => void;
@@ -26,14 +28,28 @@ const Login = ({ onComplete, onSwitch }: LoginProps) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const isFormValid =
     formData.username.trim() !== "" &&
     formData.password !== "";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
-      onComplete(formData);
+      setIsLoading(true);
+      setError("");
+      try {
+        const response = await api.login(formData);
+        await login(response.user, response.token);
+        onComplete(response.user);
+      } catch (err: any) {
+        setError(err.message || "Login gagal, silakan periksa username dan password Anda.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -109,17 +125,22 @@ const Login = ({ onComplete, onSwitch }: LoginProps) => {
           </div>
 
           <div className="flex flex-col gap-3 pt-2">
+            {error && (
+              <p className="text-[9px] text-red-500 font-bold italic ml-2 -mb-2">
+                * {error}
+              </p>
+            )}
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={!isFormValid}
+              disabled={!isFormValid || isLoading}
               className={`w-full py-2.5 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 shadow-sm ${
-                isFormValid
+                isFormValid && !isLoading
                   ? "bg-[#0A110B] text-white hover:bg-black active:translate-y-0.5 cursor-pointer"
                   : "bg-[#0A110B]/20 text-[#0A110B]/50 cursor-not-allowed"
               }`}
             >
-              Masuk
+              {isLoading ? "Memproses..." : "Masuk"}
             </button>
 
             {/* Switch to Register */}

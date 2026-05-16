@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 interface Observation2Props {
   onNext: () => void;
@@ -6,6 +7,9 @@ interface Observation2Props {
 }
 
 const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
+  const { completedPages, markPageCompleted } = useAuth();
+  const isCompleted = completedPages.includes("observation2");
+
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
 
   const videos = [
@@ -68,10 +72,15 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
           </div>
         </div>
 
-        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2">
+        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2 flex items-center gap-2">
           <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest whitespace-nowrap">
             Tahap Observasi 2
           </h1>
+          {isCompleted && (
+            <span className="material-symbols-outlined text-[#528C46] text-[16px]">
+              check_circle
+            </span>
+          )}
         </div>
       </div>
 
@@ -168,7 +177,10 @@ const Observation2: React.FC<Observation2Props> = ({ onNext, onBack }) => {
             {/* Action Button */}
             <div className="mt-3 shrink-0">
               <button
-                onClick={onNext}
+                onClick={async () => {
+                  await markPageCompleted("observation2");
+                  onNext();
+                }}
                 className="w-full py-2.5 bg-[#528C46] text-white rounded-full font-bold text-[11px] uppercase tracking-widest shadow-sm hover:bg-[#0A110B] hover:text-[#C6E67D] active:translate-y-0.5 transition-all flex items-center justify-center gap-2"
               >
                 Ke Tahap Berikutnya

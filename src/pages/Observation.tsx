@@ -1,10 +1,14 @@
 import React from "react";
+import { useAuth } from "../context/AuthContext";
 
 interface ObservationProps {
   onNext: () => void;
 }
 
 const Observation: React.FC<ObservationProps> = ({ onNext }) => {
+  const { completedPages, markPageCompleted } = useAuth();
+  const isCompleted = completedPages.includes("observation");
+
   const questions = [
     "Apa saja fakta yang kamu peroleh dari video tersebut?",
     "Interpretasikan fakta yang kamu peroleh dari video tersebut?",
@@ -49,10 +53,15 @@ const Observation: React.FC<ObservationProps> = ({ onNext }) => {
           </div>
         </div>
 
-        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2">
+        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2 flex items-center gap-2">
           <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest whitespace-nowrap">
             Tahap Observasi
           </h1>
+          {isCompleted && (
+            <span className="material-symbols-outlined text-[#528C46] text-[16px]">
+              check_circle
+            </span>
+          )}
         </div>
       </div>
 
@@ -149,7 +158,10 @@ const Observation: React.FC<ObservationProps> = ({ onNext }) => {
             {/* Action Button */}
             <div className="mt-3 shrink-0">
               <button
-                onClick={onNext}
+                onClick={async () => {
+                  await markPageCompleted("observation");
+                  onNext();
+                }}
                 className="w-full py-2.5 bg-[#528C46] text-white rounded-full font-bold text-[11px] uppercase tracking-widest hover:bg-[#0A110B] hover:text-[#C6E67D] transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm"
               >
                 Ke Tahap Berikutnya

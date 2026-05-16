@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "./context/AuthContext";
 import Onboarding from "./pages/Onboarding";
 import Registration from "./pages/Registration";
 import Login from "./pages/Login";
@@ -14,6 +15,7 @@ import Literacy4 from "./pages/Literacy4";
 import Literacy5 from "./pages/Literacy5";
 
 function App() {
+  const { user, logout } = useAuth();
   const [step, setStep] = useState<
     | "onboarding"
     | "registration"
@@ -30,19 +32,16 @@ function App() {
     | "literacy5"
     | "main"
   >("onboarding");
-  const [userData, setUserData] = useState<any>(null);
 
   const handleOnboardingComplete = () => {
     setStep("registration");
   };
 
-  const handleRegistrationComplete = (data: any) => {
-    setUserData(data);
+  const handleRegistrationComplete = () => {
     setStep("instructions");
   };
 
-  const handleLoginComplete = (data: any) => {
-    setUserData(data);
+  const handleLoginComplete = () => {
     setStep("instructions");
   };
 
@@ -232,7 +231,7 @@ function App() {
 
         <h1 className="text-2xl font-black text-[#0A110B] mb-2 leading-tight text-center">
           Luar Biasa,{" "}
-          <span className="text-[#528C46]">{userData?.fullName}!</span>
+          <span className="text-[#528C46]">{user?.fullName}!</span>
         </h1>
 
         <p className="text-[#6B7280] text-[14px] mb-5 leading-snug font-medium text-center">
@@ -257,7 +256,7 @@ function App() {
             chatKeys.forEach((key) => localStorage.removeItem(key));
 
             setStep("onboarding");
-            setUserData(null);
+            logout();
           }}
           className="w-full py-3 bg-[#0A110B] text-white rounded-full font-bold text-xs uppercase tracking-widest shadow-lg hover:bg-[#528C46] transition-all flex items-center justify-center gap-2 group"
         >
