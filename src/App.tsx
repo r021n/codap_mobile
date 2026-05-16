@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Onboarding from "./pages/Onboarding";
 import Registration from "./pages/Registration";
+import Login from "./pages/Login";
 import Instructions from "./pages/Instructions";
 import Observation from "./pages/Observation";
 import Observation2 from "./pages/Observation2";
@@ -16,6 +17,7 @@ function App() {
   const [step, setStep] = useState<
     | "onboarding"
     | "registration"
+    | "login"
     | "instructions"
     | "observation"
     | "observation2"
@@ -35,6 +37,11 @@ function App() {
   };
 
   const handleRegistrationComplete = (data: any) => {
+    setUserData(data);
+    setStep("instructions");
+  };
+
+  const handleLoginComplete = (data: any) => {
     setUserData(data);
     setStep("instructions");
   };
@@ -116,7 +123,21 @@ function App() {
   }
 
   if (step === "registration") {
-    return <Registration onComplete={handleRegistrationComplete} />;
+    return (
+      <Registration
+        onComplete={handleRegistrationComplete}
+        onSwitch={() => setStep("login")}
+      />
+    );
+  }
+
+  if (step === "login") {
+    return (
+      <Login
+        onComplete={handleLoginComplete}
+        onSwitch={() => setStep("registration")}
+      />
+    );
   }
 
   if (step === "instructions") {
