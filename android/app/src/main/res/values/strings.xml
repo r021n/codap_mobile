@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">codap-mobile</string>
-    <string name="title_activity_main">codap-mobile</string>
+    <string name="app_name">AirDataLabs</string>
+    <string name="title_activity_main">AirDataLabs</string>
     <string name="package_name">com.example.codapmobile</string>
     <string name="custom_url_scheme">com.example.codapmobile</string>
 </resources>

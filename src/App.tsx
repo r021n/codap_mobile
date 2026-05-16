@@ -15,7 +15,7 @@ import Literacy4 from "./pages/Literacy4";
 import Literacy5 from "./pages/Literacy5";
 
 function App() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [step, setStep] = useState<
     | "onboarding"
     | "registration"
@@ -153,13 +153,19 @@ function App() {
 
   if (step === "instructions") {
     return (
-      <Instructions onNext={handleInstructionsComplete} onBack={handleBackToOnboarding} />
+      <Instructions
+        onNext={handleInstructionsComplete}
+        onBack={handleBackToOnboarding}
+      />
     );
   }
 
   if (step === "observation") {
     return (
-      <Observation onNext={handleObservationComplete} onBack={handleBackToInstructions} />
+      <Observation
+        onNext={handleObservationComplete}
+        onBack={handleBackToInstructions}
+      />
     );
   }
 
@@ -246,8 +252,7 @@ function App() {
         </div>
 
         <h1 className="text-2xl font-black text-[#0A110B] mb-2 leading-tight text-center">
-          Luar Biasa,{" "}
-          <span className="text-[#528C46]">{user?.fullName}!</span>
+          Luar Biasa, <span className="text-[#528C46]">{user?.fullName}!</span>
         </h1>
 
         <p className="text-[#6B7280] text-[14px] mb-5 leading-snug font-medium text-center">
