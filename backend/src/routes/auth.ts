@@ -29,7 +29,7 @@ authRoutes.post('/register', async (c) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Insert new user into database
-    await db.insert(usersTable).values({
+    const [newUser] = await db.insert(usersTable).values({
       fullName,
       username,
       password: hashedPassword,
@@ -37,9 +37,29 @@ authRoutes.post('/register', async (c) => {
       age: parseInt(age, 10),
       className,
       attendanceNumber: parseInt(attendanceNumber, 10),
-    });
+      status: 'student',
+    }).returning();
 
-    return c.json({ message: 'User registered successfully' }, 201);
+    // Generate JWT token
+    const secret = process.env.JWT_SECRET || 'fallback-secret-do-not-use-in-production';
+    const payload = {
+      sub: newUser.id,
+      username: newUser.username,
+      status: newUser.status,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days expiration
+    };
+    const token = await sign(payload, secret, 'HS256');
+
+    return c.json({
+      message: 'User registered successfully',
+      token,
+      user: {
+        id: newUser.id,
+        fullName: newUser.fullName,
+        username: newUser.username,
+        status: newUser.status,
+      }
+    }, 201);
   } catch (error) {
     console.error('Registration error:', error);
     return c.json({ error: 'Internal server error' }, 500);
@@ -73,6 +93,7 @@ authRoutes.post('/login', async (c) => {
     const payload = {
       sub: user.id,
       username: user.username,
+      status: user.status,
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days expiration
     };
     const token = await sign(payload, secret, 'HS256');
@@ -84,6 +105,7 @@ authRoutes.post('/login', async (c) => {
         id: user.id,
         fullName: user.fullName,
         username: user.username,
+        status: user.status,
       }
     }, 200);
   } catch (error) {

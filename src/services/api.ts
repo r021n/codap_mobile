@@ -54,5 +54,19 @@ export const api = {
       throw new Error('Failed to save progress');
     }
     return response.json();
+  },
+
+  async getAllProgress(token: string) {
+    const response = await fetch(`${BASE_URL}/progress/all`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch all progress');
+    }
+    return response.json();
   }
 };

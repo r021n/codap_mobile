@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '../services/api';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { api } from "../services/api";
 
 interface User {
   id: number;
   fullName: string;
   username: string;
+  status: "admin" | "student";
 }
 
 interface AuthContextType {
@@ -18,15 +19,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [completedPages, setCompletedPages] = useState<string[]>([]);
 
   // Optional: load from localStorage if needed, but keeping it in memory for now based on current flow
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
@@ -39,15 +42,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await api.getProgress(authToken);
       setCompletedPages(data.completedPages);
     } catch (error) {
-      console.error('Failed to fetch progress:', error);
+      console.error("Failed to fetch progress:", error);
     }
   };
 
   const login = async (userData: User, authToken: string) => {
     setUser(userData);
     setToken(authToken);
-    localStorage.setItem('token', authToken);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("token", authToken);
+    localStorage.setItem("user", JSON.stringify(userData));
     await fetchProgress(authToken);
   };
 
@@ -55,25 +58,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setToken(null);
     setCompletedPages([]);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const markPageCompleted = async (pageName: string) => {
     if (!completedPages.includes(pageName)) {
-      setCompletedPages(prev => [...prev, pageName]);
+      setCompletedPages((prev) => [...prev, pageName]);
       if (token) {
         try {
           await api.saveProgress(token, pageName);
         } catch (error) {
-          console.error('Failed to save progress to backend:', error);
+          console.error("Failed to save progress to backend:", error);
         }
       }
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, completedPages, login, logout, markPageCompleted }}>
+    <AuthContext.Provider
+      value={{ user, token, completedPages, login, logout, markPageCompleted }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -82,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

@@ -13,6 +13,7 @@ import Literacy2 from "./pages/Literacy2";
 import Literacy3 from "./pages/Literacy3";
 import Literacy4 from "./pages/Literacy4";
 import Literacy5 from "./pages/Literacy5";
+import AdminProgress from "./pages/AdminProgress";
 
 function App() {
   const { user } = useAuth();
@@ -31,11 +32,16 @@ function App() {
     | "literacy4"
     | "literacy5"
     | "main"
+    | "admin_progress"
   >("onboarding");
 
   const handleOnboardingComplete = () => {
     if (user) {
-      setStep("instructions");
+      if (user.status === "admin") {
+        setStep("admin_progress");
+      } else {
+        setStep("instructions");
+      }
     } else {
       setStep("registration");
     }
@@ -45,8 +51,13 @@ function App() {
     setStep("instructions");
   };
 
-  const handleLoginComplete = () => {
-    setStep("instructions");
+  const handleLoginComplete = (userData?: any) => {
+    const currentUser = userData || user;
+    if (currentUser?.status === "admin") {
+      setStep("admin_progress");
+    } else {
+      setStep("instructions");
+    }
   };
 
   const handleInstructionsComplete = () => {
@@ -236,6 +247,10 @@ function App() {
         onBack={handleBackToLiteracy4}
       />
     );
+  }
+
+  if (step === "admin_progress") {
+    return <AdminProgress onBack={() => setStep("onboarding")} />;
   }
 
   return (

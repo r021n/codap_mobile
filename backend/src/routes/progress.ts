@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { jwt } from 'hono/jwt';
 import { eq } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { userProgressTable } from '../db/schema.js';
+import { userProgressTable, usersTable } from '../db/schema.js';
 
 type Variables = {
   jwtPayload: {
@@ -62,6 +62,39 @@ progressRoutes.get('/', async (c) => {
     return c.json({ completedPages }, 200);
   } catch (error) {
     console.error('Get progress error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+// GET /api/progress/all - Get all users' progress (Admin only)
+progressRoutes.get('/all', async (c) => {
+  try {
+    const payload = c.get('jwtPayload');
+    const userId = payload.sub as number;
+
+    const currentUser = await db.select().from(usersTable).where(eq(usersTable.id, userId)).get();
+    if (currentUser?.status !== 'admin') {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+
+    const allUsers = await db.select().from(usersTable);
+    const allProgress = await db.select().from(userProgressTable);
+
+    const progressByUser = allUsers.map(user => {
+      const userProgress = allProgress.filter(p => p.userId === user.id);
+      return {
+        id: user.id,
+        fullName: user.fullName,
+        className: user.className,
+        status: user.status,
+        completedPagesCount: userProgress.length,
+        completedPages: userProgress.map(p => p.pageName)
+      };
+    });
+
+    return c.json({ data: progressByUser }, 200);
+  } catch (error) {
+    console.error('Get all progress error:', error);
     return c.json({ error: 'Internal server error' }, 500);
   }
 });

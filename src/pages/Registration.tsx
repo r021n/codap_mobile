@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 interface RegistrationProps {
   onComplete: (data: any) => void;
@@ -33,6 +34,7 @@ const Registration = ({ onComplete, onSwitch }: RegistrationProps) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -53,8 +55,9 @@ const Registration = ({ onComplete, onSwitch }: RegistrationProps) => {
       setError("");
       try {
         const { confirmPassword, ...registerData } = formData;
-        await api.register(registerData);
-        onComplete(registerData);
+        const response = await api.register(registerData);
+        await login(response.user, response.token);
+        onComplete(response.user);
       } catch (err: any) {
         setError(err.message || "Terjadi kesalahan saat registrasi");
       } finally {

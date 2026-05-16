@@ -10,6 +10,7 @@ export const usersTable = sqliteTable('users', {
   age: integer('age').notNull(),
   className: text('class_name').notNull(),
   attendanceNumber: integer('attendance_number').notNull(),
+  status: text('status').$type<'admin' | 'student'>().notNull().default('student'),
   createdAt: text('created_at')
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
