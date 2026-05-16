@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main] # Ganti dengan 'master' jika branch utama Anda bernama master
+    branches: [main]
 
 permissions:
   contents: read
@@ -12,6 +12,9 @@ permissions:
 jobs:
   build_site:
     runs-on: ubuntu-latest
+    # Menghubungkan job ini dengan environment agar bisa mengakses secrets
+    environment: github-pages
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,12 +23,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install
 
       - name: Build
+        # Vite membutuhkan variabel ini saat build untuk di-inject ke client-side code
         run: npm run build
         env:
           VITE_AI_WORKER_URL: ${{ secrets.VITE_AI_WORKER_URL }}
@@ -34,8 +38,8 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          # Pastikan directory build Vite adalah 'dist'
-          path: './dist'
+          # Pastikan folder output Vite Anda adalah 'dist'
+          path: "./dist"
 
   deploy:
     needs: build_site
