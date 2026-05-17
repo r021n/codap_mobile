@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { App as CapacitorApp } from '@capacitor/app';
 import { useAuth } from "./context/AuthContext";
 import Onboarding from "./pages/Onboarding";
 import Registration from "./pages/Registration";
@@ -15,7 +16,7 @@ import Literacy4 from "./pages/Literacy4";
 import Literacy5 from "./pages/Literacy5";
 import AdminProgress from "./pages/AdminProgress";
 
-function App() {
+function AppContent() {
   const { user } = useAuth();
   const [step, setStep] = useState<
     | "onboarding"
@@ -315,4 +316,61 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  const [showExitModal, setShowExitModal] = useState(false);
+
+  useEffect(() => {
+    const backButtonListener = CapacitorApp.addListener('backButton', () => {
+      setShowExitModal(true);
+    });
+
+    return () => {
+      backButtonListener.then(listener => listener.remove());
+    };
+  }, []);
+
+  const handleExit = () => {
+    CapacitorApp.exitApp();
+  };
+
+  const cancelExit = () => {
+    setShowExitModal(false);
+  };
+
+  return (
+    <>
+      <AppContent />
+      {showExitModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-sans">
+          <div className="bg-white p-6 rounded-3xl border border-[#C6E67D]/30 shadow-2xl flex flex-col items-center max-w-sm w-full mx-auto animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mb-4">
+              <span className="material-symbols-outlined text-red-500 text-2xl">
+                logout
+              </span>
+            </div>
+            <h2 className="text-xl font-black text-[#0A110B] mb-2 text-center">
+              Keluar Aplikasi?
+            </h2>
+            <p className="text-sm text-[#6B7280] text-center mb-6 leading-relaxed">
+              Apakah Anda yakin ingin keluar dari aplikasi?
+            </p>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={cancelExit}
+                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-[#0A110B] rounded-full font-bold text-xs uppercase tracking-wider transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleExit}
+                className="flex-1 py-3 bg-[#528C46] hover:bg-[#0A110B] text-white hover:text-[#C6E67D] rounded-full font-bold text-xs uppercase tracking-wider transition-colors shadow-md"
+              >
+                Ya, Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
