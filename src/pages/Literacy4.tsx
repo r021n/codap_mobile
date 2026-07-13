@@ -124,7 +124,7 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
         <div className="w-[35%] flex flex-col gap-3 min-h-0">
           <div className="bg-white p-4 rounded-2xl border border-[#C6E67D]/30 shadow-sm flex flex-col flex-1 min-h-0">
             <h2 className="text-sm font-bold text-[#0A110B] mb-3 shrink-0">
-              Aktivitas & Jurnal
+              Aktivitas
             </h2>
 
             <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar">
@@ -136,9 +136,7 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
                   library_books
                 </span>
                 <div className="text-left">
-                  <p className="text-sm font-bold text-[#0A110B]">
-                    Tautan Jurnal & Tugas
-                  </p>
+                  <p className="text-sm font-bold text-[#0A110B]">Tugas</p>
                   <p className="text-[10px] text-[#6B7280] uppercase tracking-wider">
                     Resource & LKPD 8
                   </p>
@@ -181,9 +179,7 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
                 <span className="material-symbols-outlined text-2xl text-[#528C46]">
                   library_books
                 </span>
-                <h3 className="font-bold text-[#0A110B] text-sm">
-                  Tautan Jurnal & Tugas
-                </h3>
+                <h3 className="font-bold text-[#0A110B] text-sm">Tugas</h3>
               </div>
               <button
                 onClick={() => setShowLinkModal(false)}
@@ -193,25 +189,6 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
               </button>
             </div>
             <div className="p-4 flex flex-col gap-3">
-              <a
-                href="https://drive.google.com/file/d/1PAF90eMoL4Ae9bWfJ810n940_4i4XfRO/view?usp=drive_link"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group"
-              >
-                <span className="material-symbols-outlined text-2xl text-[#528C46]">
-                  article
-                </span>
-                <div className="flex-1">
-                  <p className="font-bold text-[#0A110B] text-sm">
-                    Tautan Jurnal Artikel
-                  </p>
-                  <p className="text-xs text-[#6B7280]">drive.google.com/...</p>
-                </div>
-                <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">
-                  open_in_new
-                </span>
-              </a>
               <a
                 href="https://forms.gle/maPg1qzZnj2EwzeX6"
                 target="_blank"

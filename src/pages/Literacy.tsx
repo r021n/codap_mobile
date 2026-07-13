@@ -16,7 +16,7 @@ const Literacy: React.FC<LiteracyProps> = ({ onNext, onBack }) => {
   const [showChat, setShowChat] = useState(false);
 
   const tasks = [
-    "Akses web CODAP melalui https://codap.concord.org/",
+    "Akses web CODAP",
     "Unduh data mocking yang telah guru siapkan!",
     "Import data mocking ke dalam CODAP",
     "Kerjakan setiap instruksi dan pertanyaan yang guru berikan!",
@@ -450,10 +450,10 @@ const Literacy: React.FC<LiteracyProps> = ({ onNext, onBack }) => {
       )}
 
       {/* AI Chat Modal */}
-      <AIChatModal 
-        isOpen={showChat} 
-        onClose={() => setShowChat(false)} 
-        messages={chatMessages} 
+      <AIChatModal
+        isOpen={showChat}
+        onClose={() => setShowChat(false)}
+        messages={chatMessages}
         storageKey="chat_history_literacy"
       />
 
