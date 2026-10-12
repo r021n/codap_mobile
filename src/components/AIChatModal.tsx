@@ -133,7 +133,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
                 Asisten AI
               </h3>
               <p className="text-[10px] font-bold text-[#528C46] uppercase tracking-widest mt-0.5">
-                Gemini Powered
+                AI Powered
               </p>
             </div>
           </div>

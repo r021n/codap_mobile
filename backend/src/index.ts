@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import authRoutes from './routes/auth.js';
 import progressRoutes from './routes/progress.js';
+import aiRoutes from './routes/ai.js';
 
 const app = new Hono();
 
@@ -22,6 +23,7 @@ app.get('/', (c) => {
 // Register routes
 app.route('/api/auth', authRoutes);
 app.route('/api/progress', progressRoutes);
+app.route('/api/ai', aiRoutes);
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 

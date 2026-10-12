@@ -1,18 +1,16 @@
 /**
- * AI Service – communicates with the CODAP AI Worker (Cloudflare)
+ * AI Service – communicates with the Backend AI Route (Hono / OpenRouter)
  *
- * Change WORKER_URL to your deployed Cloudflare Worker URL.
- * During local development you can use http://localhost:8787
+ * Uses OpenRouter API (model: xiaomi/mimo-v2.6-flash) via Backend proxy
+ * with thinking/reasoning disabled for maximum cost efficiency.
  */
 
 // ─── Configuration ──────────────────────────────────────────────────────────
 
-const WORKER_URL =
-  import.meta.env.VITE_AI_WORKER_URL ||
-  "https://codap-ai-worker.rozinabdul51.workers.dev";
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // System instruction that sets the AI assistant's persona
-const SYSTEM_INSTRUCTION = `Kamu adalah "Asisten AI CODAP", asisten cerdas yang membantu siswa dalam pembelajaran sains, khususnya tentang kualitas udara dan analisis data menggunakan platform CODAP (Common Online Data Analysis Platform).
+export const SYSTEM_INSTRUCTION = `Kamu adalah "Asisten AI CODAP", asisten cerdas yang membantu siswa dalam pembelajaran sains, khususnya tentang kualitas udara dan analisis data menggunakan platform CODAP (Common Online Data Analysis Platform).
 
 Panduan perilaku:
 - Jawab dalam Bahasa Indonesia yang sopan dan mudah dipahami
@@ -24,10 +22,13 @@ Panduan perilaku:
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-export interface GeminiMessage {
-  role: "user" | "model";
-  parts: { text: string }[];
+export interface AIMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
 }
+
+// Backward-compatibility alias
+export type GeminiMessage = AIMessage;
 
 export interface AIServiceOptions {
   temperature?: number;
@@ -37,39 +38,46 @@ export interface AIServiceOptions {
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /**
- * Convert the component's ChatMessage[] history into Gemini-compatible format.
- * The `messages` prop from AIChatModal uses sender:'ai'|'user', but Gemini
- * expects role:'model'|'user'.
+ * Convert the component's ChatMessage[] history into standard OpenAI/OpenRouter format.
  */
-export function toGeminiMessages(
+export function toAIMessages(
   history: { sender: "ai" | "user"; text: string }[],
-): GeminiMessage[] {
+): AIMessage[] {
   return history.map((m) => ({
-    role: m.sender === "ai" ? "model" : "user",
-    parts: [{ text: m.text }],
+    role: m.sender === "ai" ? "assistant" : "user",
+    content: m.text,
   }));
 }
+
+// Backward-compatibility alias
+export const toGeminiMessages = toAIMessages;
 
 // ─── API Calls ──────────────────────────────────────────────────────────────
 
 /**
- * Send a non-streaming chat request to the worker.
+ * Send a non-streaming chat request to the backend AI route.
  * Returns the AI's response text.
  */
 export async function sendChatMessage(
-  messages: GeminiMessage[],
+  messages: AIMessage[],
   options?: AIServiceOptions,
 ): Promise<string> {
-  const res = await fetch(`${WORKER_URL}/api/chat`, {
+  const token = localStorage.getItem("token");
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${BASE_URL}/ai/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({
       messages,
       systemInstruction: SYSTEM_INSTRUCTION,
-      generationConfig: {
-        temperature: options?.temperature ?? 0.7,
-        maxOutputTokens: options?.maxOutputTokens ?? 2048,
-      },
+      temperature: options?.temperature ?? 0.7,
+      maxTokens: options?.maxOutputTokens ?? 1024,
     }),
   });
 
@@ -83,25 +91,31 @@ export async function sendChatMessage(
 }
 
 /**
- * Send a streaming chat request to the worker.
+ * Send a streaming chat request to the backend AI route.
  * Calls `onChunk` for each piece of text received, and `onDone` when complete.
  */
 export async function sendChatMessageStream(
-  messages: GeminiMessage[],
+  messages: AIMessage[],
   onChunk: (text: string) => void,
   onDone: () => void,
   options?: AIServiceOptions,
 ): Promise<void> {
-  const res = await fetch(`${WORKER_URL}/api/chat/stream`, {
+  const token = localStorage.getItem("token");
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${BASE_URL}/ai/chat/stream`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({
       messages,
       systemInstruction: SYSTEM_INSTRUCTION,
-      generationConfig: {
-        temperature: options?.temperature ?? 0.7,
-        maxOutputTokens: options?.maxOutputTokens ?? 2048,
-      },
+      temperature: options?.temperature ?? 0.7,
+      maxTokens: options?.maxOutputTokens ?? 1024,
     }),
   });
 
@@ -135,16 +149,15 @@ export async function sendChatMessageStream(
 
         try {
           const parsed = JSON.parse(jsonStr) as {
-            candidates?: {
-              content?: { parts?: { text?: string; thought?: boolean }[] };
+            choices?: {
+              delta?: { content?: string };
+              message?: { content?: string };
             }[];
           };
-          const parts = parsed?.candidates?.[0]?.content?.parts ?? [];
-          const text = parts
-            .filter((p) => !p.thought)
-            .map((p) => p.text)
-            .filter((t) => t !== undefined)
-            .join("");
+          const text =
+            parsed?.choices?.[0]?.delta?.content ||
+            parsed?.choices?.[0]?.message?.content ||
+            "";
 
           if (text) {
             onChunk(text);
