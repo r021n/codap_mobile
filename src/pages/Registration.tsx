@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { api } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, type User } from "../context/auth-context";
 
 interface RegistrationProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: User) => void;
   onSwitch: () => void;
 }
 
@@ -24,7 +24,8 @@ const Registration = ({ onComplete, onSwitch }: RegistrationProps) => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    let { name, value } = e.target;
+    const { name } = e.target;
+    let { value } = e.target;
 
     // Rule: no capital letters, no spaces for username
     if (name === "username") {
@@ -54,12 +55,12 @@ const Registration = ({ onComplete, onSwitch }: RegistrationProps) => {
       setIsLoading(true);
       setError("");
       try {
-        const { confirmPassword, ...registerData } = formData;
-        const response = await api.register(registerData);
+        const { fullName, username, password, gender, age, className, attendanceNumber } = formData;
+        const response = await api.register({ fullName, username, password, gender, age, className, attendanceNumber });
         await login(response.user, response.token);
         onComplete(response.user);
-      } catch (err: any) {
-        setError(err.message || "Terjadi kesalahan saat registrasi");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Terjadi kesalahan saat registrasi");
       } finally {
         setIsLoading(false);
       }

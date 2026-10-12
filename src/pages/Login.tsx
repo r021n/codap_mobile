@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { api } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, type User } from "../context/auth-context";
 
 interface LoginProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: User) => void;
   onSwitch: () => void;
 }
 
@@ -18,7 +18,8 @@ const Login = ({ onComplete, onSwitch }: LoginProps) => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    let { name, value } = e.target;
+    const { name } = e.target;
+    let { value } = e.target;
 
     // Rule: no capital letters, no spaces for username
     if (name === "username") {
@@ -45,8 +46,8 @@ const Login = ({ onComplete, onSwitch }: LoginProps) => {
         const response = await api.login(formData);
         await login(response.user, response.token);
         onComplete(response.user);
-      } catch (err: any) {
-        setError(err.message || "Login gagal, silakan periksa username dan password Anda.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Login gagal, silakan periksa username dan password Anda.");
       } finally {
         setIsLoading(false);
       }

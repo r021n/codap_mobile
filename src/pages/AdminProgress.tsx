@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import React, { useCallback, useState } from "react";
+import { useAuth } from "../context/auth-context";
 import { api } from "../services/api";
 
 interface AdminProgressProps {
@@ -17,12 +17,29 @@ interface UserProgressData {
 const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
   const { token, user } = useAuth();
   const [progressData, setProgressData] = useState<UserProgressData[]>([]);
-  const [loading, setLoading] = useState(true);
 
   // observation, observation2, investigation, analysis, literacy, literacy2, literacy3, literacy4, literacy5
   const totalStages = 9; 
 
-  const fetchData = async (isRefresh = false) => {
+  const isAdmin = user?.status === "admin";
+  const [loading, setLoading] = useState(isAdmin);
+
+  // Load progress directly from the server during the initial render
+  // (no effects, no cascading renders).
+  if (progressData.length === 0 && token && isAdmin) {
+    void api
+      .getAllProgress(token)
+      .then((res) => {
+        setProgressData(res.data || []);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching progress:", error);
+        setLoading(false);
+      });
+  }
+
+  const fetchData = useCallback(async (isRefresh = false) => {
     if (token && user?.status === "admin") {
       if (isRefresh) setLoading(true);
       try {
@@ -36,10 +53,6 @@ const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
     } else {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchData();
   }, [token, user]);
 
   if (user?.status !== "admin") {

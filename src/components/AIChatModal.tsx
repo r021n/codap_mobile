@@ -16,26 +16,22 @@ interface AIChatModalProps {
 }
 
 const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, storageKey }) => {
-  const [allMessages, setAllMessages] = useState<ChatMessage[]>([]);
+  // Load from localStorage or use initial messages (lazy initializer)
+  const [allMessages, setAllMessages] = useState<ChatMessage[]>(() => {
+    const savedChat = localStorage.getItem(storageKey);
+    if (savedChat) {
+      try {
+        return JSON.parse(savedChat) as ChatMessage[];
+      } catch {
+        return messages;
+      }
+    }
+    return messages;
+  });
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const abortRef = useRef<AbortController | null>(null);
-
-  // Load from localStorage or use initial messages
-  useEffect(() => {
-    const savedChat = localStorage.getItem(storageKey);
-    if (savedChat) {
-      try {
-        setAllMessages(JSON.parse(savedChat));
-      } catch (e) {
-        setAllMessages(messages);
-      }
-    } else {
-      setAllMessages(messages);
-    }
-  }, [storageKey, messages]);
 
   // Save to localStorage whenever messages change
   useEffect(() => {
@@ -50,13 +46,6 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ isOpen, onClose, messages, st
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [allMessages, isTyping]);
-
-  // Cleanup abort controller on unmount
-  useEffect(() => {
-    return () => {
-      abortRef.current?.abort();
-    };
-  }, []);
 
   const handleSend = useCallback(async () => {
     if (!inputValue.trim() || isTyping) return;

@@ -1,30 +1,57 @@
+import type { User } from "../context/auth-context";
+
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
+export interface RegisterData {
+  fullName: string;
+  username: string;
+  password: string;
+  gender: string;
+  age: string;
+  className: string;
+  attendanceNumber: string;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  message: string;
+  token: string;
+  user: User;
+}
+
+interface ApiError {
+  error?: string;
+}
+
 export const api = {
-  async register(data: any) {
+  async register(data: RegisterData): Promise<AuthResponse> {
     const response = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
-      const err = await response.json();
+      const err = (await response.json()) as ApiError;
       throw new Error(err.error || 'Registration failed');
     }
-    return response.json();
+    return (await response.json()) as AuthResponse;
   },
 
-  async login(credentials: any) {
+  async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
     });
     if (!response.ok) {
-      const err = await response.json();
+      const err = (await response.json()) as ApiError;
       throw new Error(err.error || 'Login failed');
     }
-    return response.json();
+    return (await response.json()) as AuthResponse;
   },
 
   async getProgress(token: string) {

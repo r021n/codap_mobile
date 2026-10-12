@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { App as CapacitorApp } from '@capacitor/app';
-import { useAuth } from "./context/AuthContext";
+import { useAuth, type User } from "./context/auth-context";
 import Onboarding from "./pages/Onboarding";
 import Registration from "./pages/Registration";
 import Login from "./pages/Login";
@@ -52,7 +52,7 @@ function AppContent() {
     setStep("instructions");
   };
 
-  const handleLoginComplete = (userData?: any) => {
+  const handleLoginComplete = (userData?: User | null) => {
     const currentUser = userData || user;
     if (currentUser?.status === "admin") {
       setStep("admin_progress");
