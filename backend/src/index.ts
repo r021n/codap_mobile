@@ -16,6 +16,11 @@ app.use('*', cors({
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
+// Health check endpoint
+app.get('/health', (c) => {
+  return c.json({ status: 'ok', uptime: process.uptime() });
+});
+
 // Basic route
 app.get('/', (c) => {
   return c.json({ message: 'Codap Mobile Backend API is running!' });
@@ -27,13 +32,25 @@ app.route('/api/progress', progressRoutes);
 app.route('/api/ai', aiRoutes);
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const hostname = process.env.HOST || '0.0.0.0';
 
-if (process.env.NODE_ENV !== 'production') {
-  console.log(`Server is running on port ${port}`);
-  serve({
-    fetch: app.fetch,
-    port
+const server = serve({
+  fetch: app.fetch,
+  port,
+  hostname,
+}, (info) => {
+  console.log(`Server is running on http://${info.address}:${info.port}`);
+});
+
+const gracefulShutdown = () => {
+  console.log('Received shutdown signal, shutting down server gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
   });
-}
+};
+
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
 
 export default app;
