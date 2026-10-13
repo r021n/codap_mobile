@@ -1,0 +1,3 @@
+202.155.13.59.sslip.io {
+    reverse_proxy backend:3000
+}
