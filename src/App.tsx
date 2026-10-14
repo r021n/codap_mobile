@@ -15,6 +15,7 @@ import Literacy3 from "./pages/Literacy3";
 import Literacy4 from "./pages/Literacy4";
 import Literacy5 from "./pages/Literacy5";
 import AdminProgress from "./pages/AdminProgress";
+import DeveloperProfile from "./pages/DeveloperProfile";
 
 function AppContent() {
   const { user } = useAuth();
@@ -34,6 +35,7 @@ function AppContent() {
     | "literacy5"
     | "main"
     | "admin_progress"
+    | "developer_profile"
   >("onboarding");
 
   const handleOnboardingComplete = () => {
@@ -141,8 +143,17 @@ function AppContent() {
     setStep("onboarding");
   };
 
+  if (step === "developer_profile") {
+    return <DeveloperProfile onBack={handleBackToOnboarding} />;
+  }
+
   if (step === "onboarding") {
-    return <Onboarding onStart={handleOnboardingComplete} />;
+    return (
+      <Onboarding
+        onStart={handleOnboardingComplete}
+        onDeveloperProfile={() => setStep("developer_profile")}
+      />
+    );
   }
 
   if (step === "registration") {

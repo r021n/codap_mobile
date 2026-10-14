@@ -4,25 +4,38 @@ import envImg from "../assets/screen_1/env.png";
 
 interface OnboardingProps {
   onStart: () => void;
+  onDeveloperProfile?: () => void;
 }
 
-const Onboarding = ({ onStart }: OnboardingProps) => {
+const Onboarding = ({ onStart, onDeveloperProfile }: OnboardingProps) => {
   const { user, logout } = useAuth();
   const [isReady, setIsReady] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   return (
     <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B] relative">
-      {/* Logout Button (Conditional) */}
-      {user && (
+      {/* Top Action Bar (Profil Pengembang & Logout) */}
+      <div className="absolute top-4 right-4 md:top-5 md:right-5 z-20 flex items-center gap-2">
         <button
-          onClick={() => setShowLogoutModal(true)}
-          className="absolute top-5 right-5 z-20 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-[#C6E67D]/30 flex items-center gap-2 text-[#6B7280] hover:text-red-500 hover:border-red-200 transition-all duration-300 group"
+          onClick={onDeveloperProfile}
+          className="px-3.5 py-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-xs border border-[#C6E67D]/40 flex items-center gap-1.5 text-[#0A110B] hover:text-[#528C46] hover:border-[#528C46]/40 transition-all duration-200 active:scale-95"
+          title="Profil Pengembang"
         >
-          <span className="text-[10px] font-bold uppercase tracking-wider group-hover:block hidden">Logout</span>
-          <span className="material-symbols-outlined text-[18px]">logout</span>
+          <span className="material-symbols-outlined text-[17px] text-[#528C46]">badge</span>
+          <span className="text-[11px] font-bold text-[#0A110B]">Profil Pengembang</span>
         </button>
-      )}
+
+        {user && (
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="px-3.5 py-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-xs border border-[#C6E67D]/30 flex items-center gap-1.5 text-[#6B7280] hover:text-red-500 hover:border-red-200 transition-all duration-300 group active:scale-95"
+            title="Logout"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider group-hover:block hidden">Logout</span>
+            <span className="material-symbols-outlined text-[17px]">logout</span>
+          </button>
+        )}
+      </div>
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
