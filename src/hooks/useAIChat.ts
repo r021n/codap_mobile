@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { chatApi, type ChatMessageItem } from '../services/chatApi';
+import {
+  chatApi,
+  type ChatMessageItem,
+  type ChatAttachmentPayload,
+} from '../services/chatApi';
 
 interface UseAIChatOptions {
   moduleKey: string;
@@ -7,10 +11,22 @@ interface UseAIChatOptions {
   isOpen?: boolean;
 }
 
+export interface ActiveAttachment {
+  file: File;
+  previewUrl: string;
+  fileType: 'image' | 'text';
+  fileName: string;
+  serverUrl?: string;
+  textSnippet?: string;
+  dataUrl?: string;
+}
+
 export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: UseAIChatOptions) {
   const [messages, setMessages] = useState<ChatMessageItem[]>(initialMessages);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [attachment, setAttachment] = useState<ActiveAttachment | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const initialLoadedRef = useRef(false);
@@ -38,7 +54,6 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
       .catch((err) => {
         if (!isMounted) return;
         console.warn('Gagal memuat riwayat chat dari server:', err);
-        // Fallback tetap gunakan initialMessages
         setMessages(initialMessages);
         initialLoadedRef.current = true;
       })
@@ -51,11 +66,94 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
     };
   }, [isOpen, moduleKey, token, initialMessages]);
 
-  // Kirim pesan baru dengan streaming SSE
+  // Handler memilih file attachment (dengan validasi ekstensi klien)
+  const selectFile = useCallback(
+    async (file: File) => {
+      setError(null);
+      const name = file.name.toLowerCase();
+      const isImg =
+        name.endsWith('.png') ||
+        name.endsWith('.jpg') ||
+        name.endsWith('.jpeg') ||
+        name.endsWith('.webp') ||
+        file.type.startsWith('image/');
+      const isTxt =
+        name.endsWith('.csv') ||
+        name.endsWith('.txt') ||
+        file.type === 'text/csv' ||
+        file.type === 'text/plain';
+
+      if (!isImg && !isTxt) {
+        setError('Format tidak didukung. Pilih gambar (PNG/JPG) atau data (CSV/TXT).');
+        return;
+      }
+
+      if (isImg && file.size > 3 * 1024 * 1024) {
+        setError('Ukuran gambar maksimal 3 MB.');
+        return;
+      }
+      if (isTxt && file.size > 300 * 1024) {
+        setError('Ukuran file data maksimal 300 KB.');
+        return;
+      }
+
+      try {
+        setIsUploading(true);
+
+        // Buat preview lokal
+        let previewUrl = '';
+        let dataUrl: string | undefined = undefined;
+
+        if (isImg) {
+          previewUrl = URL.createObjectURL(file);
+
+          // Baca data URL untuk vision payload
+          const reader = new FileReader();
+          dataUrl = await new Promise<string>((resolve) => {
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+        } else {
+          previewUrl = '';
+        }
+
+        // Upload ke backend
+        const uploaded = await chatApi.uploadFile(file, token);
+
+        setAttachment({
+          file,
+          previewUrl: previewUrl || uploaded.fileUrl,
+          fileType: uploaded.fileType,
+          fileName: uploaded.fileName,
+          serverUrl: uploaded.fileUrl,
+          textSnippet: uploaded.textSnippet,
+          dataUrl,
+        });
+      } catch (err) {
+        console.error('Upload error:', err);
+        setError(err instanceof Error ? err.message : 'Gagal mengunggah file.');
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [token]
+  );
+
+  const removeAttachment = useCallback(() => {
+    if (attachment?.previewUrl && attachment.previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(attachment.previewUrl);
+    }
+    setAttachment(null);
+  }, [attachment]);
+
+  // Kirim pesan baru dengan streaming SSE (dan lampiran jika ada)
   const sendMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
-      if (!trimmed || isTyping) return;
+      const currentAttachment = attachment;
+
+      // Harus ada teks atau attachment
+      if ((!trimmed && !currentAttachment) || isTyping || isUploading) return;
 
       const userMsgId = `user-${Date.now()}`;
       const aiMsgId = `ai-${Date.now() + 1}`;
@@ -63,7 +161,10 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
       const userMessage: ChatMessageItem = {
         id: userMsgId,
         sender: 'user',
-        text: trimmed,
+        text: trimmed || (currentAttachment?.fileType === 'image' ? 'Tolong jelaskan gambar ini' : 'Tolong amati data ini'),
+        attachmentUrl: currentAttachment?.serverUrl || currentAttachment?.previewUrl,
+        attachmentType: currentAttachment?.fileType,
+        attachmentName: currentAttachment?.fileName,
       };
 
       const emptyAiMessage: ChatMessageItem = {
@@ -74,8 +175,19 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
 
       // Optimistic update
       setMessages((prev) => [...prev, userMessage, emptyAiMessage]);
+      setAttachment(null); // Clear attachment selection
       setIsTyping(true);
       setError(null);
+
+      const attachmentPayload: ChatAttachmentPayload | undefined = currentAttachment
+        ? {
+            url: currentAttachment.serverUrl,
+            type: currentAttachment.fileType,
+            name: currentAttachment.fileName,
+            textSnippet: currentAttachment.textSnippet,
+            dataUrl: currentAttachment.dataUrl,
+          }
+        : undefined;
 
       await chatApi.streamChatMessage(
         moduleKey,
@@ -110,10 +222,11 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
                 : msg
             )
           );
-        }
+        },
+        attachmentPayload
       );
     },
-    [isTyping, moduleKey, token]
+    [attachment, isTyping, isUploading, moduleKey, token]
   );
 
   // Soft-delete riwayat percakapan (arsipkan di DB & reset tampilan)
@@ -124,10 +237,10 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
         await chatApi.archiveHistory(moduleKey, token);
       }
       setMessages(initialMessages);
+      setAttachment(null);
     } catch (err) {
       console.error('Gagal mengarsipkan chat:', err);
       setError(err instanceof Error ? err.message : 'Gagal mereset chat');
-      // Reset tampilan lokal tetap dijalankan untuk kenyamanan user
       setMessages(initialMessages);
     }
   }, [moduleKey, token, initialMessages]);
@@ -136,6 +249,10 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
     messages,
     isLoadingHistory,
     isTyping,
+    isUploading,
+    attachment,
+    selectFile,
+    removeAttachment,
     error,
     sendMessage,
     clearHistory,

@@ -69,26 +69,39 @@ chatRoutes.post('/stream', async (c) => {
     const userId = Number(payload.sub);
 
     const body = await c.req
-      .json<{ moduleKey?: string; content?: string }>()
+      .json<{
+        moduleKey?: string;
+        content?: string;
+        attachment?: {
+          url?: string;
+          type?: 'image' | 'text';
+          name?: string;
+          textSnippet?: string;
+          dataUrl?: string;
+        };
+      }>()
       .catch(() => null);
 
-    if (!body || !body.moduleKey || !body.content?.trim()) {
-      return c.json({ error: 'moduleKey and content are required' }, 400);
+    if (!body || !body.moduleKey || (!body.content?.trim() && !body.attachment)) {
+      return c.json({ error: 'moduleKey and content (or attachment) are required' }, 400);
     }
 
-    const { moduleKey, content } = body;
+    const moduleKey = body.moduleKey;
+    const content = body.content?.trim() || (body.attachment?.type === 'image' ? 'Tolong amati dan jelaskan gambar ini.' : 'Tolong amati dan jelaskan data ini.');
+    const attachment = body.attachment;
 
     return streamSSE(c, async (stream) => {
       try {
         const result = await chatService.processStreamMessage(
           userId,
           moduleKey,
-          content.trim(),
+          content,
           async (chunk) => {
             await stream.writeSSE({
               data: JSON.stringify({ chunk }),
             });
-          }
+          },
+          attachment
         );
 
         // Kirim event selesai beserta ID pesan yang tersimpan di DB

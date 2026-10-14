@@ -1,10 +1,43 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'https://202.155.13.59.sslip.io/api';
 
+export function getAttachmentFullUrl(url?: string): string {
+  if (!url) return '';
+  if (
+    url.startsWith('http://') ||
+    url.startsWith('https://') ||
+    url.startsWith('blob:') ||
+    url.startsWith('data:')
+  ) {
+    return url;
+  }
+  const rootUrl = BASE_URL.replace(/\/api\/?$/, '');
+  return `${rootUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
 export interface ChatMessageItem {
   id: string;
   sender: 'ai' | 'user';
   text: string;
+  attachmentUrl?: string;
+  attachmentType?: 'image' | 'text';
+  attachmentName?: string;
   createdAt?: string;
+}
+
+export interface ChatAttachmentPayload {
+  url?: string;
+  type: 'image' | 'text';
+  name: string;
+  textSnippet?: string;
+  dataUrl?: string;
+}
+
+export interface UploadFileResponse {
+  message: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: 'image' | 'text';
+  textSnippet?: string;
 }
 
 export interface AdminChatSession {
@@ -47,6 +80,29 @@ export interface AdminTranscriptResponse {
 
 export const chatApi = {
   /**
+   * Mengunggah file (gambar atau file data CSV/TXT).
+   */
+  async uploadFile(file: File, token: string): Promise<UploadFileResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${BASE_URL}/chat/upload`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error((err as { error?: string }).error || 'Gagal mengunggah file');
+    }
+
+    return (await res.json()) as UploadFileResponse;
+  },
+
+  /**
    * Mengambil riwayat pesan aktif untuk modul tertentu.
    */
   async getHistory(moduleKey: string, token: string): Promise<ChatMessageItem[]> {
@@ -87,7 +143,7 @@ export const chatApi = {
   },
 
   /**
-   * Mengirim pesan baru via streaming SSE.
+   * Mengirim pesan baru via streaming SSE (dengan dukungan lampiran file).
    * onChunk dipanggil saat potongan respons AI diterima.
    * onDone dipanggil ketika streaming selesai dan disimpan di DB.
    */
@@ -97,7 +153,8 @@ export const chatApi = {
     token: string,
     onChunk: (chunk: string) => void,
     onDone: () => void,
-    onError: (err: Error) => void
+    onError: (err: Error) => void,
+    attachment?: ChatAttachmentPayload
   ): Promise<void> {
     try {
       const res = await fetch(`${BASE_URL}/chat/stream`, {
@@ -106,7 +163,7 @@ export const chatApi = {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ moduleKey, content }),
+        body: JSON.stringify({ moduleKey, content, attachment }),
       });
 
       if (!res.ok) {

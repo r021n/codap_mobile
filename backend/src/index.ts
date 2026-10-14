@@ -1,4 +1,5 @@
 import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
@@ -6,6 +7,7 @@ import authRoutes from './routes/auth.js';
 import progressRoutes from './routes/progress.js';
 import aiRoutes from './routes/ai.js';
 import chatRoutes from './routes/chat.js';
+import chatUploadRoutes from './routes/chatUpload.js';
 import adminChatRoutes from './routes/adminChat.js';
 
 const app = new Hono();
@@ -17,6 +19,9 @@ app.use('*', cors({
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
+
+// Static file serving for uploads (chat images & files)
+app.use('/uploads/*', serveStatic({ root: './' }));
 
 // Health check endpoint
 app.get('/health', (c) => {
@@ -32,6 +37,7 @@ app.get('/', (c) => {
 app.route('/api/auth', authRoutes);
 app.route('/api/progress', progressRoutes);
 app.route('/api/ai', aiRoutes);
+app.route('/api/chat/upload', chatUploadRoutes);
 app.route('/api/chat', chatRoutes);
 app.route('/api/admin/chat', adminChatRoutes);
 

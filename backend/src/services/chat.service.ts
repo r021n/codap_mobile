@@ -1,5 +1,9 @@
 import { chatRepository } from '../db/chat.repository.js';
 import { aiService, type AIMessage } from './ai.service.js';
+import {
+  promptBuilderService,
+  type ChatAttachmentInput,
+} from './prompt-builder.service.js';
 
 export const chatService = {
   /**
@@ -18,6 +22,9 @@ export const chatService = {
         id: String(m.id),
         sender: m.role === 'assistant' ? ('ai' as const) : ('user' as const),
         text: m.content,
+        attachmentUrl: m.attachmentUrl ?? undefined,
+        attachmentType: m.attachmentType ?? undefined,
+        attachmentName: m.attachmentName ?? undefined,
         createdAt: m.createdAt,
       })),
     };
@@ -32,26 +39,50 @@ export const chatService = {
   },
 
   /**
-   * Tangani pesan baru, kirim stream ke client via callback, dan simpan kedua pesan ke database secara atomic.
+   * Tangani pesan baru (dengan dukungan lampiran gambar/data), kirim stream ke client via callback,
+   * dan simpan kedua pesan ke database secara atomic.
    */
   async processStreamMessage(
     userId: number,
     moduleKey: string,
     content: string,
-    onChunk: (chunk: string) => void
+    onChunk: (chunk: string) => void,
+    attachment?: ChatAttachmentInput
   ) {
     // 1. Dapatkan atau buat sesi aktif
     const session = await chatRepository.getOrCreateActiveSession(userId, moduleKey);
 
-    // 2. Simpan pesan siswa terlebih dahulu
-    const userMessage = await chatRepository.saveMessage(session.id, 'user', content);
+    // 2. Simpan pesan siswa terlebih dahulu beserta data attachment
+    const userMessage = await chatRepository.saveMessage(
+      session.id,
+      'user',
+      content,
+      attachment
+        ? {
+            url: attachment.url,
+            type: attachment.type,
+            name: attachment.name,
+          }
+        : undefined
+    );
 
     // 3. Ambil sliding-window (8 pesan terakhir) untuk konteks percakapan AI
     const recentMessages = await chatRepository.getRecentMessages(session.id, 8);
-    const aiContextMessages: AIMessage[] = recentMessages.map((m) => ({
+    
+    // Bentuk konteks: pesan-pesan lama dalam bentuk teks
+    // Kecuali pesan terakhir yang saat ini sedang diproses (gunakan promptBuilderService)
+    const contextWithoutCurrent = recentMessages.filter((m) => m.id !== userMessage.id);
+    const aiContextMessages: AIMessage[] = contextWithoutCurrent.map((m) => ({
       role: m.role as 'user' | 'assistant' | 'system',
       content: m.content,
     }));
+
+    // Tambahkan pesan user saat ini dengan format multimodal/injeksi CSV
+    const currentUserAIMessage = promptBuilderService.buildUserMessage(
+      content,
+      attachment
+    );
+    aiContextMessages.push(currentUserAIMessage);
 
     // 4. Lakukan streaming AI via OpenRouter
     const fullAssistantText = await aiService.streamChat(
@@ -81,7 +112,7 @@ export const chatService = {
   },
 
   /**
-   * Ambil transkrip lengkap satu sesi chat untuk Admin.
+   * Ambil transkrip lengkap satu sesi chat untuk Admin (termasuk lampiran gambar/file).
    */
   async getAdminSessionTranscript(sessionId: number) {
     const sessionData = await chatRepository.getSessionWithUser(sessionId);
@@ -94,6 +125,9 @@ export const chatService = {
       id: String(m.id),
       sender: m.role === 'assistant' ? ('ai' as const) : ('user' as const),
       text: m.content,
+      attachmentUrl: m.attachmentUrl ?? undefined,
+      attachmentType: m.attachmentType ?? undefined,
+      attachmentName: m.attachmentName ?? undefined,
       createdAt: m.createdAt,
     }));
 

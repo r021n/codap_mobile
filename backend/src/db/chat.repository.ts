@@ -81,7 +81,12 @@ export const chatRepository = {
   async saveMessage(
     sessionId: number,
     role: 'user' | 'assistant' | 'system',
-    content: string
+    content: string,
+    attachment?: {
+      url?: string | null;
+      type?: 'image' | 'text' | null;
+      name?: string | null;
+    }
   ): Promise<SelectChatMessage> {
     const [saved] = await db
       .insert(chatMessagesTable)
@@ -89,6 +94,9 @@ export const chatRepository = {
         sessionId,
         role,
         content,
+        attachmentUrl: attachment?.url ?? null,
+        attachmentType: attachment?.type ?? null,
+        attachmentName: attachment?.name ?? null,
       })
       .returning();
 

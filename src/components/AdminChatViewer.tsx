@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   chatApi,
+  getAttachmentFullUrl,
   type AdminStudentChatOverview,
   type AdminTranscriptResponse,
 } from '../services/chatApi';
@@ -257,6 +258,36 @@ export const AdminChatViewer: React.FC<AdminChatViewerProps> = ({ token }) => {
                             : 'bg-white text-[#0A110B] border border-[#C6E67D]/30 rounded-bl-none'
                         }`}
                       >
+                        {/* Lampiran Gambar atau File jika ada */}
+                        {(msg.attachmentUrl || msg.attachmentName) && (
+                          <div className="mb-2">
+                            {msg.attachmentType === 'image' || msg.attachmentUrl?.match(/\.(png|jpe?g|webp)$/i) ? (
+                              <div className="overflow-hidden rounded-xl border border-white/20 bg-black/5">
+                                <img
+                                  src={getAttachmentFullUrl(msg.attachmentUrl)}
+                                  alt={msg.attachmentName || 'Lampiran Siswa'}
+                                  className="max-h-36 max-w-full object-cover rounded-xl"
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-mono border ${
+                                  isUser
+                                    ? 'bg-white/15 border-white/25 text-white'
+                                    : 'bg-[#FDFCF8] border-[#C6E67D]/40 text-[#528C46]'
+                                }`}
+                              >
+                                <span className="material-symbols-outlined text-[14px]">
+                                  description
+                                </span>
+                                <span className="truncate max-w-[180px]">
+                                  {msg.attachmentName || 'data.csv'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {isUser ? (
                           <p className="whitespace-pre-wrap">{msg.text}</p>
                         ) : (

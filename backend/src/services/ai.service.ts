@@ -1,6 +1,10 @@
+export type ContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string } };
+
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant';
-  content: string;
+  content: string | ContentPart[];
 }
 
 export const DEFAULT_SYSTEM_INSTRUCTION = `Kamu adalah "Asisten AI CODAP", asisten cerdas yang membantu siswa dalam pembelajaran sains, khususnya tentang kualitas udara dan analisis data menggunakan platform CODAP (Common Online Data Analysis Platform).
