@@ -5,6 +5,8 @@ import { logger } from 'hono/logger';
 import authRoutes from './routes/auth.js';
 import progressRoutes from './routes/progress.js';
 import aiRoutes from './routes/ai.js';
+import chatRoutes from './routes/chat.js';
+import adminChatRoutes from './routes/adminChat.js';
 
 const app = new Hono();
 
@@ -30,6 +32,8 @@ app.get('/', (c) => {
 app.route('/api/auth', authRoutes);
 app.route('/api/progress', progressRoutes);
 app.route('/api/ai', aiRoutes);
+app.route('/api/chat', chatRoutes);
+app.route('/api/admin/chat', adminChatRoutes);
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const hostname = process.env.HOST || '0.0.0.0';
