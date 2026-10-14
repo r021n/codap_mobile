@@ -3,6 +3,7 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
+import { etag } from 'hono/etag';
 import authRoutes from './routes/auth.js';
 import progressRoutes from './routes/progress.js';
 import aiRoutes from './routes/ai.js';
@@ -20,8 +21,24 @@ app.use('*', cors({
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
-// Static file serving for uploads (chat images & files)
-app.use('/uploads/*', serveStatic({ root: './' }));
+// ETag middleware for non-streaming GET API routes
+app.use('/api/*', async (c, next) => {
+  if (c.req.method === 'GET' && !c.req.path.includes('/stream')) {
+    return etag()(c, next);
+  }
+  await next();
+});
+
+// Static file serving for uploads (chat images & files) with long-term cache
+app.use(
+  '/uploads/*',
+  serveStatic({
+    root: './',
+    onFound: (_path, c) => {
+      c.header('Cache-Control', 'public, max-age=31536000, immutable');
+    },
+  })
+);
 
 // Health check endpoint
 app.get('/health', (c) => {

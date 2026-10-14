@@ -28,11 +28,14 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
   const [isUploading, setIsUploading] = useState(false);
   const [attachment, setAttachment] = useState<ActiveAttachment | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hasMoreOlder, setHasMoreOlder] = useState(false);
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
 
   const initialLoadedRef = useRef(false);
   const token = localStorage.getItem('token') || '';
 
-  // Muat riwayat dari database saat modal dibuka untuk pertama kali
+  // Muat riwayat awal (25 pesan terbaru) saat modal dibuka
   useEffect(() => {
     if (!isOpen || initialLoadedRef.current || !token) return;
 
@@ -41,14 +44,16 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
     setError(null);
 
     chatApi
-      .getHistory(moduleKey, token)
-      .then((history) => {
+      .getHistory(moduleKey, token, { limit: 25 })
+      .then((res) => {
         if (!isMounted) return;
-        if (history.length > 0) {
-          setMessages(history);
+        if (res.messages.length > 0) {
+          setMessages(res.messages);
         } else {
           setMessages(initialMessages);
         }
+        setHasMoreOlder(Boolean(res.pagination?.hasMore));
+        setNextCursor(res.pagination?.nextCursor ?? null);
         initialLoadedRef.current = true;
       })
       .catch((err) => {
@@ -65,6 +70,25 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
       isMounted = false;
     };
   }, [isOpen, moduleKey, token, initialMessages]);
+
+  // Muat pesan lebih lama (infinite scroll / load previous)
+  const loadOlderMessages = useCallback(async () => {
+    if (!token || !hasMoreOlder || !nextCursor || isLoadingOlder) return;
+    setIsLoadingOlder(true);
+    try {
+      const res = await chatApi.getHistory(moduleKey, token, {
+        cursor: nextCursor,
+        limit: 20,
+      });
+      setMessages((prev) => [...res.messages, ...prev]);
+      setHasMoreOlder(Boolean(res.pagination?.hasMore));
+      setNextCursor(res.pagination?.nextCursor ?? null);
+    } catch (err) {
+      console.warn('Gagal memuat pesan terdahulu:', err);
+    } finally {
+      setIsLoadingOlder(false);
+    }
+  }, [hasMoreOlder, isLoadingOlder, moduleKey, nextCursor, token]);
 
   // Handler memilih file attachment (dengan validasi ekstensi klien)
   const selectFile = useCallback(
@@ -238,6 +262,8 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
       }
       setMessages(initialMessages);
       setAttachment(null);
+      setHasMoreOlder(false);
+      setNextCursor(null);
     } catch (err) {
       console.error('Gagal mengarsipkan chat:', err);
       setError(err instanceof Error ? err.message : 'Gagal mereset chat');
@@ -248,6 +274,9 @@ export function useAIChat({ moduleKey, initialMessages = [], isOpen = false }: U
   return {
     messages,
     isLoadingHistory,
+    hasMoreOlder,
+    isLoadingOlder,
+    loadOlderMessages,
     isTyping,
     isUploading,
     attachment,

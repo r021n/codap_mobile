@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../context/auth-context";
 import { api } from "../services/api";
 import { AdminChatViewer } from "../components/AdminChatViewer";
@@ -18,44 +19,31 @@ interface UserProgressData {
 const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
   const { token, user } = useAuth();
   const [activeTab, setActiveTab] = useState<'progress' | 'chat'>('progress');
-  const [progressData, setProgressData] = useState<UserProgressData[]>([]);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const limit = 12;
 
-  // observation, observation2, investigation, analysis, literacy, literacy2, literacy3, literacy4, literacy5
   const totalStages = 9; 
-
   const isAdmin = user?.status === "admin";
-  const [loading, setLoading] = useState(isAdmin);
 
-  // Load progress directly from the server during the initial render
-  // (no effects, no cascading renders).
-  if (progressData.length === 0 && token && isAdmin) {
-    void api
-      .getAllProgress(token)
-      .then((res) => {
-        setProgressData(res.data || []);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching progress:", error);
-        setLoading(false);
-      });
-  }
+  const {
+    data: progressResponse,
+    isLoading: loading,
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: ['admin-progress', page, search],
+    queryFn: async () => {
+      if (!token) return { data: [], pagination: { totalPages: 1, totalRecords: 0, page: 1, limit, hasMore: false } };
+      return api.getAllProgress(token, { page, limit, search });
+    },
+    enabled: Boolean(token && isAdmin),
+    staleTime: 1000 * 30, // 30 detik
+  });
 
-  const fetchData = useCallback(async (isRefresh = false) => {
-    if (token && user?.status === "admin") {
-      if (isRefresh) setLoading(true);
-      try {
-        const res = await api.getAllProgress(token);
-        setProgressData(res.data || []);
-      } catch (error) {
-        console.error("Error fetching progress:", error);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setLoading(false);
-    }
-  }, [token, user]);
+  const progressData: UserProgressData[] = progressResponse?.data || [];
+  const pagination = progressResponse?.pagination;
+  const totalPages = pagination?.totalPages || 1;
 
   if (user?.status !== "admin") {
     return (
@@ -112,18 +100,31 @@ const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
         </div>
 
         {activeTab === 'progress' && (
-          <button
-            onClick={() => fetchData(true)}
-            disabled={loading}
-            className="bg-white px-3.5 py-1 rounded-full border border-[#C6E67D]/30 shadow-sm flex items-center gap-1.5 hover:border-[#528C46] transition-all duration-300 group disabled:opacity-50"
-          >
-            <span className={`material-symbols-outlined text-[#528C46] text-[16px] group-hover:rotate-180 transition-transform duration-500 ${loading ? 'animate-spin' : ''}`}>
-              refresh
-            </span>
-            <span className="text-[10px] font-bold text-[#0A110B] uppercase tracking-wider">
-              Refresh
-            </span>
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="bg-white px-2.5 py-1 rounded-full border border-[#C6E67D]/30 shadow-xs flex items-center gap-1.5 text-xs">
+              <span className="material-symbols-outlined text-[15px] text-gray-400">search</span>
+              <input
+                type="text"
+                placeholder="Cari siswa..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="bg-transparent outline-none text-[#0A110B] text-xs w-28 placeholder:text-gray-400"
+              />
+            </div>
+            <button
+              onClick={() => void refetch()}
+              disabled={isFetching}
+              title="Refresh data"
+              className="w-7 h-7 bg-white rounded-full border border-[#C6E67D]/30 shadow-xs flex items-center justify-center hover:border-[#528C46] transition-all disabled:opacity-50"
+            >
+              <span className={`material-symbols-outlined text-[#528C46] text-[16px] ${isFetching ? 'animate-spin' : ''}`}>
+                refresh
+              </span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -158,10 +159,10 @@ const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
                     
                     return (
                       <tr key={student.id} className="hover:bg-[#FDFCF8] transition-colors group">
-                        <td className="py-3 px-4 text-xs font-bold text-[#0A110B] border-b border-[#C6E67D]/10 text-center">
-                          {index + 1}
+                        <td className="py-2.5 px-4 text-xs font-bold text-[#0A110B] border-b border-[#C6E67D]/10 text-center">
+                          {(page - 1) * limit + index + 1}
                         </td>
-                        <td className="py-3 px-4 border-b border-[#C6E67D]/10">
+                        <td className="py-2.5 px-4 border-b border-[#C6E67D]/10">
                           <div className="flex flex-col">
                             <span className="text-xs font-bold text-[#0A110B] leading-tight">
                               {student.fullName}
@@ -171,7 +172,7 @@ const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
                             </span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 border-b border-[#C6E67D]/10">
+                        <td className="py-2.5 px-4 border-b border-[#C6E67D]/10">
                           <div className="flex items-center gap-3">
                             <div className="flex-1 h-2 bg-[#FDFCF8] rounded-full overflow-hidden border border-[#C6E67D]/20 shadow-inner">
                               <div 
@@ -204,6 +205,30 @@ const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
               </table>
             </div>
           )}
+
+          {/* Minimalist Pagination Bar */}
+          <div className="pt-2.5 mt-auto border-t border-[#C6E67D]/20 flex items-center justify-between text-xs text-[#6B7280] shrink-0">
+            <span>Total: {pagination?.totalRecords ?? progressData.length} siswa</span>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="w-6 h-6 flex items-center justify-center rounded-md border border-[#C6E67D]/30 bg-white hover:bg-[#FDFCF8] disabled:opacity-30 cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[14px]">chevron_left</span>
+              </button>
+              <span className="text-[11px] font-medium text-[#0A110B] px-1">
+                {page} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="w-6 h-6 flex items-center justify-center rounded-md border border-[#C6E67D]/30 bg-white hover:bg-[#FDFCF8] disabled:opacity-30 cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "../services/api";
+import { queryClient } from "../lib/queryClient";
 import { AuthContext, type User } from "./auth-context";
 
 const readStoredUser = (): User | null => {
@@ -21,25 +23,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.getItem("token"),
   );
 
-  // Load persisted progress directly from the server during the initial
-  // render (no effects, no cascading renders). The state is seeded once;
-  // subsequent updates go through completedPages setters.
-  const [completedPages, setCompletedPages] = useState<string[] | null>(null);
-  if (completedPages === null && token) {
-    // Kick off the async fetch; setState in the .then() callback is fine.
-    void api
-      .getProgress(token)
-      .then((data) => setCompletedPages(data.completedPages))
-      .catch((error) => {
-        console.error("Failed to fetch progress:", error);
-        setCompletedPages([]);
-      });
-  }
+  // TanStack Query untuk caching progress siswa (stale-while-revalidate & offline-persisted)
+  const { data: serverProgress } = useQuery({
+    queryKey: ['user-progress', user?.id],
+    queryFn: async () => {
+      if (!token) return { completedPages: [] };
+      return api.getProgress(token);
+    },
+    enabled: Boolean(token && user?.id),
+    staleTime: 1000 * 60 * 5, // 5 menit
+  });
+
+  const [completedPages, setCompletedPages] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (serverProgress?.completedPages) {
+      setCompletedPages(serverProgress.completedPages);
+    }
+  }, [serverProgress]);
 
   const login = async (userData: User, authToken: string) => {
     setUser(userData);
     setToken(authToken);
-    setCompletedPages(null);
     localStorage.setItem("token", authToken);
     localStorage.setItem("user", JSON.stringify(userData));
   };
@@ -50,14 +55,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setCompletedPages([]);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    queryClient.clear();
   };
 
   const markPageCompleted = async (pageName: string) => {
-    if (completedPages && !completedPages.includes(pageName)) {
-      setCompletedPages((prev) => [...(prev ?? []), pageName]);
+    if (!completedPages.includes(pageName)) {
+      const nextPages = [...completedPages, pageName];
+      setCompletedPages(nextPages);
+
+      // Optimistic update pada query cache TanStack Query
+      queryClient.setQueryData(['user-progress', user?.id], { completedPages: nextPages });
+
       if (token) {
         try {
           await api.saveProgress(token, pageName);
+          // Invalidate cache admin agar terupdate
+          void queryClient.invalidateQueries({ queryKey: ['admin-progress'] });
         } catch (error) {
           console.error("Failed to save progress to backend:", error);
         }
@@ -70,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         user,
         token,
-        completedPages: completedPages ?? [],
+        completedPages,
         login,
         logout,
         markPageCompleted,

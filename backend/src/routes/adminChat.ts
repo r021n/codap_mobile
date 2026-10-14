@@ -42,11 +42,33 @@ adminChatRoutes.use('/*', async (c, next) => {
   await next();
 });
 
+import { memoryCache } from '../services/cache.service.js';
+
 // GET /api/admin/chat/overview - Ringkasan seluruh siswa dan sesi chat-nya (Aktif & Arsip)
 adminChatRoutes.get('/overview', async (c) => {
   try {
-    const overview = await chatService.getAdminOverview();
-    return c.json({ students: overview }, 200);
+    const page = Number(c.req.query('page') || 1);
+    const limit = c.req.query('limit') ? Number(c.req.query('limit')) : 15;
+    const search = c.req.query('search') || '';
+    const className = c.req.query('className') || '';
+    const all = c.req.query('all') === 'true';
+
+    const cacheKey = `admin:chat:overview:${page}:${limit}:${search}:${className}:${all}`;
+    const cached = memoryCache.get(cacheKey);
+    if (cached) {
+      return c.json(cached, 200);
+    }
+
+    const overview = await chatService.getAdminOverview({
+      page,
+      limit,
+      search,
+      className,
+      all,
+    });
+
+    memoryCache.set(cacheKey, overview, 30, ['chat', 'admin']);
+    return c.json(overview, 200);
   } catch (error) {
     console.error('Admin chat overview error:', error);
     return c.json({ error: 'Internal server error' }, 500);
@@ -61,7 +83,10 @@ adminChatRoutes.get('/session/:sessionId', async (c) => {
       return c.json({ error: 'Invalid sessionId' }, 400);
     }
 
-    const transcript = await chatService.getAdminSessionTranscript(sessionId);
+    const cursor = c.req.query('cursor') ? Number(c.req.query('cursor')) : undefined;
+    const limit = c.req.query('limit') ? Number(c.req.query('limit')) : undefined;
+
+    const transcript = await chatService.getAdminSessionTranscript(sessionId, { cursor, limit });
     if (!transcript) {
       return c.json({ error: 'Sesi chat tidak ditemukan' }, 404);
     }

@@ -83,8 +83,19 @@ export const api = {
     return response.json();
   },
 
-  async getAllProgress(token: string) {
-    const response = await fetch(`${BASE_URL}/progress/all`, {
+  async getAllProgress(
+    token: string,
+    params?: { page?: number; limit?: number; search?: string; className?: string; all?: boolean }
+  ) {
+    const query = new URLSearchParams();
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.search) query.set('search', params.search);
+    if (params?.className) query.set('className', params.className);
+    if (params?.all) query.set('all', 'true');
+
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+    const response = await fetch(`${BASE_URL}/progress/all${queryString}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -29,12 +29,14 @@ chatRoutes.get('/history/:moduleKey', async (c) => {
     const payload = c.get('jwtPayload');
     const userId = Number(payload.sub);
     const moduleKey = c.req.param('moduleKey');
+    const cursor = c.req.query('cursor') ? Number(c.req.query('cursor')) : undefined;
+    const limit = c.req.query('limit') ? Number(c.req.query('limit')) : undefined;
 
     if (!moduleKey) {
       return c.json({ error: 'moduleKey is required' }, 400);
     }
 
-    const data = await chatService.getStudentHistory(userId, moduleKey);
+    const data = await chatService.getStudentHistory(userId, moduleKey, { cursor, limit });
     return c.json(data, 200);
   } catch (error) {
     console.error('Error fetching chat history:', error);

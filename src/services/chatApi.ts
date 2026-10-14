@@ -60,6 +60,26 @@ export interface AdminStudentChatOverview {
   lastActive: string | null;
 }
 
+export interface PaginationMeta {
+  page?: number;
+  limit?: number;
+  totalRecords?: number;
+  totalPages?: number;
+  hasMore: boolean;
+  nextCursor?: number | null;
+}
+
+export interface ChatHistoryResponse {
+  sessionId: number | null;
+  messages: ChatMessageItem[];
+  pagination?: PaginationMeta;
+}
+
+export interface AdminOverviewResponse {
+  students: AdminStudentChatOverview[];
+  pagination?: PaginationMeta;
+}
+
 export interface AdminTranscriptResponse {
   session: {
     id: number;
@@ -76,6 +96,7 @@ export interface AdminTranscriptResponse {
     className: string;
   };
   messages: ChatMessageItem[];
+  pagination?: PaginationMeta;
 }
 
 export const chatApi = {
@@ -103,10 +124,19 @@ export const chatApi = {
   },
 
   /**
-   * Mengambil riwayat pesan aktif untuk modul tertentu.
+   * Mengambil riwayat pesan aktif untuk modul tertentu (dengan opsi pagination cursor).
    */
-  async getHistory(moduleKey: string, token: string): Promise<ChatMessageItem[]> {
-    const res = await fetch(`${BASE_URL}/chat/history/${encodeURIComponent(moduleKey)}`, {
+  async getHistory(
+    moduleKey: string,
+    token: string,
+    options?: { cursor?: number; limit?: number }
+  ): Promise<ChatHistoryResponse> {
+    const query = new URLSearchParams();
+    if (options?.cursor) query.set('cursor', String(options.cursor));
+    if (options?.limit) query.set('limit', String(options.limit));
+    const qs = query.toString() ? `?${query.toString()}` : '';
+
+    const res = await fetch(`${BASE_URL}/chat/history/${encodeURIComponent(moduleKey)}${qs}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -119,8 +149,12 @@ export const chatApi = {
       throw new Error((err as { error?: string }).error || 'Gagal memuat riwayat chat');
     }
 
-    const data = (await res.json()) as { messages: ChatMessageItem[] };
-    return data.messages || [];
+    const data = (await res.json()) as ChatHistoryResponse;
+    return {
+      sessionId: data.sessionId ?? null,
+      messages: data.messages || [],
+      pagination: data.pagination,
+    };
   },
 
   /**
@@ -227,10 +261,21 @@ export const chatApi = {
   },
 
   /**
-   * Mengambil ringkasan seluruh siswa dan sesi chat-nya untuk Admin.
+   * Mengambil ringkasan seluruh siswa dan sesi chat-nya untuk Admin (dengan opsi pagination & filter).
    */
-  async getAdminOverview(token: string): Promise<AdminStudentChatOverview[]> {
-    const res = await fetch(`${BASE_URL}/admin/chat/overview`, {
+  async getAdminOverview(
+    token: string,
+    params?: { page?: number; limit?: number; search?: string; className?: string; all?: boolean }
+  ): Promise<AdminOverviewResponse> {
+    const query = new URLSearchParams();
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.search) query.set('search', params.search);
+    if (params?.className) query.set('className', params.className);
+    if (params?.all) query.set('all', 'true');
+    const qs = query.toString() ? `?${query.toString()}` : '';
+
+    const res = await fetch(`${BASE_URL}/admin/chat/overview${qs}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -243,15 +288,27 @@ export const chatApi = {
       throw new Error((err as { error?: string }).error || 'Gagal memuat data chat admin');
     }
 
-    const data = (await res.json()) as { students: AdminStudentChatOverview[] };
-    return data.students || [];
+    const data = (await res.json()) as AdminOverviewResponse;
+    return {
+      students: data.students || [],
+      pagination: data.pagination,
+    };
   },
 
   /**
-   * Mengambil transkrip lengkap sebuah sesi untuk Admin.
+   * Mengambil transkrip lengkap sebuah sesi untuk Admin (dengan opsi pagination cursor).
    */
-  async getAdminSessionTranscript(sessionId: number, token: string): Promise<AdminTranscriptResponse> {
-    const res = await fetch(`${BASE_URL}/admin/chat/session/${sessionId}`, {
+  async getAdminSessionTranscript(
+    sessionId: number,
+    token: string,
+    options?: { cursor?: number; limit?: number }
+  ): Promise<AdminTranscriptResponse> {
+    const query = new URLSearchParams();
+    if (options?.cursor) query.set('cursor', String(options.cursor));
+    if (options?.limit) query.set('limit', String(options.limit));
+    const qs = query.toString() ? `?${query.toString()}` : '';
+
+    const res = await fetch(`${BASE_URL}/admin/chat/session/${sessionId}${qs}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

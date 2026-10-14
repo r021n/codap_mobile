@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import ReactMarkdown from 'react-markdown';
 import {
   chatApi,
   getAttachmentFullUrl,
-  type AdminStudentChatOverview,
-  type AdminTranscriptResponse,
 } from '../services/chatApi';
 
 interface AdminChatViewerProps {
@@ -12,56 +11,51 @@ interface AdminChatViewerProps {
 }
 
 export const AdminChatViewer: React.FC<AdminChatViewerProps> = ({ token }) => {
-  const [students, setStudents] = useState<AdminStudentChatOverview[]>([]);
-  const [loadingOverview, setLoadingOverview] = useState(true);
-  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
-  const [transcript, setTranscript] = useState<AdminTranscriptResponse | null>(null);
-  const [loadingTranscript, setLoadingTranscript] = useState(false);
+  const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
+  const limit = 8;
 
-  // Ambil overview siswa & sesi
-  const loadOverview = useCallback(async () => {
-    setLoadingOverview(true);
-    setError(null);
-    try {
-      const data = await chatApi.getAdminOverview(token);
-      setStudents(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal memuat overview chat');
-    } finally {
-      setLoadingOverview(false);
-    }
-  }, [token]);
-
-  useEffect(() => {
-    void loadOverview();
-  }, [loadOverview]);
-
-  // Ambil transkrip ketika sesi dipilih
-  const handleSelectSession = useCallback(
-    async (sessionId: number) => {
-      setSelectedSessionId(sessionId);
-      setLoadingTranscript(true);
-      setError(null);
-      try {
-        const data = await chatApi.getAdminSessionTranscript(sessionId, token);
-        setTranscript(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Gagal memuat transkrip chat');
-      } finally {
-        setLoadingTranscript(false);
-      }
+  // Query overview siswa & sesi (dengan cache TanStack Query)
+  const {
+    data: overviewData,
+    isLoading: loadingOverview,
+    isFetching: isFetchingOverview,
+    refetch: refetchOverview,
+    error: overviewQueryError,
+  } = useQuery({
+    queryKey: ['admin-chat-overview', page, searchQuery],
+    queryFn: async () => {
+      return chatApi.getAdminOverview(token, { page, limit, search: searchQuery });
     },
-    [token]
-  );
+    enabled: Boolean(token),
+    staleTime: 1000 * 30, // 30 detik
+  });
 
-  // Filter siswa berdasarkan nama atau kelas
-  const filteredStudents = students.filter(
-    (s) =>
-      s.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.className && s.className.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const students = overviewData?.students || [];
+  const pagination = overviewData?.pagination;
+  const totalPages = pagination?.totalPages || 1;
+
+  // Query transkrip sesi tertentu (dengan cache TanStack Query)
+  const {
+    data: transcript,
+    isLoading: loadingTranscript,
+    error: transcriptQueryError,
+  } = useQuery({
+    queryKey: ['admin-chat-transcript', selectedSessionId],
+    queryFn: async () => {
+      if (!selectedSessionId) return null;
+      return chatApi.getAdminSessionTranscript(selectedSessionId, token);
+    },
+    enabled: Boolean(selectedSessionId && token),
+    staleTime: 1000 * 60 * 2, // 2 menit
+  });
+
+  const handleSelectSession = (sessionId: number) => {
+    setSelectedSessionId(sessionId);
+  };
+
+  const error = (overviewQueryError as Error)?.message || (transcriptQueryError as Error)?.message || null;
 
   return (
     <div className="flex-1 flex overflow-hidden border border-[#C6E67D]/30 rounded-2xl bg-white shadow-xs">
@@ -77,19 +71,22 @@ export const AdminChatViewer: React.FC<AdminChatViewerProps> = ({ token }) => {
               type="text"
               placeholder="Cari nama / kelas..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(1);
+              }}
               className="w-full bg-transparent outline-none text-[#0A110B] placeholder:text-gray-400 text-xs"
             />
           </div>
           <button
-            onClick={() => void loadOverview()}
+            onClick={() => void refetchOverview()}
             title="Muat Ulang"
-            disabled={loadingOverview}
-            className="w-8 h-8 rounded-xl border border-[#C6E67D]/30 bg-white flex items-center justify-center hover:bg-gray-50 text-[#528C46] disabled:opacity-50"
+            disabled={isFetchingOverview}
+            className="w-8 h-8 rounded-xl border border-[#C6E67D]/30 bg-white flex items-center justify-center hover:bg-gray-50 text-[#528C46] disabled:opacity-50 cursor-pointer"
           >
             <span
               className={`material-symbols-outlined text-[16px] ${
-                loadingOverview ? 'animate-spin' : ''
+                isFetchingOverview ? 'animate-spin' : ''
               }`}
             >
               refresh
@@ -103,12 +100,12 @@ export const AdminChatViewer: React.FC<AdminChatViewerProps> = ({ token }) => {
             <div className="flex justify-center items-center py-12">
               <div className="w-5 h-5 border-2 border-[#528C46] border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : filteredStudents.length === 0 ? (
+          ) : students.length === 0 ? (
             <div className="text-center py-8 text-xs text-gray-400">
               Tidak ada data siswa
             </div>
           ) : (
-            filteredStudents.map((student) => {
+            students.map((student) => {
               const hasSessions = student.sessions.length > 0;
 
               return (
@@ -180,6 +177,30 @@ export const AdminChatViewer: React.FC<AdminChatViewerProps> = ({ token }) => {
               );
             })
           )}
+        </div>
+
+        {/* Minimalist Pagination Bar */}
+        <div className="p-2 border-t border-[#C6E67D]/20 flex items-center justify-between text-xs text-[#6B7280] bg-[#FDFCF8] shrink-0">
+          <span className="text-[11px]">{pagination?.totalRecords ?? students.length} siswa</span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="w-5 h-5 flex items-center justify-center rounded border border-[#C6E67D]/30 bg-white hover:bg-gray-50 disabled:opacity-30 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[13px]">chevron_left</span>
+            </button>
+            <span className="text-[10px] font-medium text-[#0A110B] px-1">
+              {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="w-5 h-5 flex items-center justify-center rounded border border-[#C6E67D]/30 bg-white hover:bg-gray-50 disabled:opacity-30 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[13px]">chevron_right</span>
+            </button>
+          </div>
         </div>
       </div>
 

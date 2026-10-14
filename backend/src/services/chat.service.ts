@@ -1,18 +1,52 @@
-import { chatRepository } from '../db/chat.repository.js';
+import { chatRepository, type AdminOverviewFilterOptions } from '../db/chat.repository.js';
 import { aiService, type AIMessage } from './ai.service.js';
 import {
   promptBuilderService,
   type ChatAttachmentInput,
 } from './prompt-builder.service.js';
+import { memoryCache } from './cache.service.js';
 
 export const chatService = {
   /**
    * Ambil riwayat chat sesi aktif untuk modul tertentu milik siswa.
    */
-  async getStudentHistory(userId: number, moduleKey: string) {
+  async getStudentHistory(
+    userId: number,
+    moduleKey: string,
+    options?: { cursor?: number; limit?: number }
+  ) {
     const session = await chatRepository.getActiveSession(userId, moduleKey);
     if (!session) {
-      return { sessionId: null, messages: [] };
+      return {
+        sessionId: null,
+        messages: [],
+        pagination: { hasMore: false, nextCursor: null, limit: options?.limit || 0 },
+      };
+    }
+
+    if (options?.limit) {
+      const paginated = await chatRepository.getPaginatedSessionMessages(
+        session.id,
+        options.cursor,
+        options.limit
+      );
+      return {
+        sessionId: session.id,
+        messages: paginated.messages.map((m) => ({
+          id: String(m.id),
+          sender: m.role === 'assistant' ? ('ai' as const) : ('user' as const),
+          text: m.content,
+          attachmentUrl: m.attachmentUrl ?? undefined,
+          attachmentType: m.attachmentType ?? undefined,
+          attachmentName: m.attachmentName ?? undefined,
+          createdAt: m.createdAt,
+        })),
+        pagination: {
+          hasMore: paginated.hasMore,
+          nextCursor: paginated.nextCursor,
+          limit: options.limit,
+        },
+      };
     }
 
     const messages = await chatRepository.getAllSessionMessages(session.id);
@@ -27,6 +61,11 @@ export const chatService = {
         attachmentName: m.attachmentName ?? undefined,
         createdAt: m.createdAt,
       })),
+      pagination: {
+        hasMore: false,
+        nextCursor: null,
+        limit: messages.length,
+      },
     };
   },
 
@@ -35,6 +74,8 @@ export const chatService = {
    */
   async archiveStudentSession(userId: number, moduleKey: string) {
     const success = await chatRepository.archiveActiveSession(userId, moduleKey);
+    memoryCache.invalidateTag('chat');
+    memoryCache.invalidateTag('admin');
     return { success };
   },
 
@@ -97,6 +138,10 @@ export const chatService = {
       fullAssistantText
     );
 
+    // Invalidate cache
+    memoryCache.invalidateTag('chat');
+    memoryCache.invalidateTag('admin');
+
     return {
       sessionId: session.id,
       userMessage,
@@ -107,17 +152,46 @@ export const chatService = {
   /**
    * Ambil ringkasan aktivitas chat semua siswa untuk Admin.
    */
-  async getAdminOverview() {
-    return chatRepository.getAdminStudentsChatOverview();
+  async getAdminOverview(options?: AdminOverviewFilterOptions) {
+    return chatRepository.getAdminStudentsChatOverview(options);
   },
 
   /**
    * Ambil transkrip lengkap satu sesi chat untuk Admin (termasuk lampiran gambar/file).
    */
-  async getAdminSessionTranscript(sessionId: number) {
+  async getAdminSessionTranscript(
+    sessionId: number,
+    options?: { cursor?: number; limit?: number }
+  ) {
     const sessionData = await chatRepository.getSessionWithUser(sessionId);
     if (!sessionData) {
       return null;
+    }
+
+    if (options?.limit) {
+      const paginated = await chatRepository.getPaginatedSessionMessages(
+        sessionId,
+        options.cursor,
+        options.limit
+      );
+      return {
+        session: sessionData.session,
+        student: sessionData.user,
+        messages: paginated.messages.map((m) => ({
+          id: String(m.id),
+          sender: m.role === 'assistant' ? ('ai' as const) : ('user' as const),
+          text: m.content,
+          attachmentUrl: m.attachmentUrl ?? undefined,
+          attachmentType: m.attachmentType ?? undefined,
+          attachmentName: m.attachmentName ?? undefined,
+          createdAt: m.createdAt,
+        })),
+        pagination: {
+          hasMore: paginated.hasMore,
+          nextCursor: paginated.nextCursor,
+          limit: options.limit,
+        },
+      };
     }
 
     const rawMessages = await chatRepository.getAllSessionMessages(sessionId);
@@ -135,6 +209,11 @@ export const chatService = {
       session: sessionData.session,
       student: sessionData.user,
       messages,
+      pagination: {
+        hasMore: false,
+        nextCursor: null,
+        limit: messages.length,
+      },
     };
   },
 };

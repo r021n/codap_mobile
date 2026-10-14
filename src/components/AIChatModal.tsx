@@ -62,6 +62,9 @@ const AIChatModal: React.FC<AIChatModalProps> = ({
   const {
     messages,
     isLoadingHistory,
+    hasMoreOlder,
+    isLoadingOlder,
+    loadOlderMessages,
     isTyping,
     isUploading,
     attachment,
@@ -199,7 +202,24 @@ const AIChatModal: React.FC<AIChatModalProps> = ({
               <div className="w-5 h-5 border-2 border-[#528C46] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            messages.map((msg) => {
+            <>
+              {hasMoreOlder && (
+                <div className="flex justify-center pb-1">
+                  <button
+                    onClick={() => void loadOlderMessages()}
+                    disabled={isLoadingOlder}
+                    className="text-[11px] text-[#528C46] bg-white border border-[#C6E67D]/40 px-3 py-1 rounded-full shadow-2xs hover:bg-[#FDFCF8] disabled:opacity-50 transition-all flex items-center gap-1 cursor-pointer"
+                  >
+                    {isLoadingOlder ? (
+                      <span className="w-3 h-3 border border-[#528C46] border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
+                    )}
+                    <span>Pesan terdahulu</span>
+                  </button>
+                </div>
+              )}
+              {messages.map((msg) => {
               const isUser = msg.sender === 'user';
               const hasAttachment = Boolean(msg.attachmentUrl || msg.attachmentName);
               const isImageAttachment =
@@ -306,7 +326,8 @@ const AIChatModal: React.FC<AIChatModalProps> = ({
                   </div>
                 </div>
               );
-            })
+            })}
+            </>
           )}
         </div>
 
