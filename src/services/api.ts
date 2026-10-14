@@ -1,6 +1,6 @@
 import type { User } from "../context/auth-context";
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://202.155.13.59.sslip.io/api';
 
 export interface RegisterData {
   fullName: string;
