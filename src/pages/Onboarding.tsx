@@ -177,7 +177,7 @@ const Onboarding = ({ onStart, onDeveloperProfile }: OnboardingProps) => {
               onClick={onStart}
               className={`py-2 px-6 rounded-full font-bold text-[11px] uppercase tracking-widest transition-all duration-300 shadow-md ${
                 isReady
-                  ? "bg-[#0A110B] text-white hover:bg-black active:translate-y-0.5 cursor-pointer"
+                  ? "bg-[#0A110B] text-white hover:bg-[#528C46] active:translate-y-0.5 cursor-pointer"
                   : "bg-[#0A110B]/20 text-[#0A110B]/50 cursor-not-allowed"
               }`}
             >

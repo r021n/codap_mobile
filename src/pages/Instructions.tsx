@@ -127,9 +127,12 @@ const Instructions: React.FC<InstructionsProps> = ({ onNext, onBack }) => {
           <div className="pt-2 shrink-0">
             <button
               onClick={onNext}
-              className="w-full py-2.5 bg-[#0A110B] text-white rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 shadow-sm hover:bg-black active:translate-y-0.5 cursor-pointer"
+              className="w-full py-3 bg-[#0A110B] text-white rounded-full font-bold text-[11px] uppercase tracking-widest shadow-md hover:bg-[#528C46] active:translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               Lanjutkan Ke Pembelajaran
+              <span className="material-symbols-outlined text-[14px]">
+                arrow_forward
+              </span>
             </button>
           </div>
         </div>

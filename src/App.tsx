@@ -6,7 +6,6 @@ import Registration from "./pages/Registration";
 import Login from "./pages/Login";
 import Instructions from "./pages/Instructions";
 import Observation from "./pages/Observation";
-import Observation2 from "./pages/Observation2";
 import Investigation from "./pages/Investigation";
 import Analysis from "./pages/Analysis";
 import Literacy from "./pages/Literacy";
@@ -25,7 +24,6 @@ function AppContent() {
     | "login"
     | "instructions"
     | "observation"
-    | "observation2"
     | "investigation"
     | "analysis"
     | "literacy"
@@ -68,10 +66,6 @@ function AppContent() {
   };
 
   const handleObservationComplete = () => {
-    setStep("observation2");
-  };
-
-  const handleObservation2Complete = () => {
     setStep("investigation");
   };
 
@@ -121,10 +115,6 @@ function AppContent() {
 
   const handleBackToObservation = () => {
     setStep("observation");
-  };
-
-  const handleBackToObservation2 = () => {
-    setStep("observation2");
   };
 
   const handleBackToInvestigation = () => {
@@ -192,20 +182,11 @@ function AppContent() {
     );
   }
 
-  if (step === "observation2") {
-    return (
-      <Observation2
-        onNext={handleObservation2Complete}
-        onBack={handleBackToObservation}
-      />
-    );
-  }
-
   if (step === "investigation") {
     return (
       <Investigation
         onNext={handleInvestigationComplete}
-        onBack={handleBackToObservation2}
+        onBack={handleBackToObservation}
       />
     );
   }

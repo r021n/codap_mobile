@@ -124,7 +124,7 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
         <div className="w-[35%] flex flex-col gap-3 min-h-0">
           <div className="bg-white p-4 rounded-2xl border border-[#C6E67D]/30 shadow-sm flex flex-col flex-1 min-h-0">
             <h2 className="text-sm font-bold text-[#0A110B] mb-3 shrink-0">
-              Aktivitas & Jurnal
+              Aktivitas & Tugas
             </h2>
 
             <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar">
@@ -133,14 +133,14 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
                 className="w-full p-6 flex items-center gap-5 bg-[#FDFCF8] border border-[#C6E67D]/40 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group shrink-0"
               >
                 <span className="material-symbols-outlined text-4xl text-[#528C46] group-hover:scale-110 transition-transform duration-300">
-                  library_books
+                  assignment_turned_in
                 </span>
                 <div className="text-left">
                   <p className="text-sm font-bold text-[#0A110B]">
-                    Tautan Jurnal & Tugas
+                    Pengumpulan Tugas
                   </p>
                   <p className="text-[10px] text-[#6B7280] uppercase tracking-wider">
-                    Resource & LKPD 8
+                    LKPD 8
                   </p>
                 </div>
               </button>
@@ -160,7 +160,7 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
                   await markPageCompleted("literacy4");
                   onNext();
                 }}
-                className="w-full py-3 bg-[#0A110B] text-white rounded-full font-bold text-[11px] uppercase tracking-widest shadow-md hover:bg-[#528C46] active:translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#0A110B] text-white rounded-full font-bold text-[11px] uppercase tracking-widest shadow-md hover:bg-[#528C46] active:translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 Ke Tahap Berikutnya
                 <span className="material-symbols-outlined text-[14px]">
@@ -179,10 +179,10 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
             <div className="p-4 border-b border-[#C6E67D]/30 flex justify-between items-center bg-white">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-2xl text-[#528C46]">
-                  library_books
+                  assignment_turned_in
                 </span>
                 <h3 className="font-bold text-[#0A110B] text-sm">
-                  Tautan Jurnal & Tugas
+                  Pengumpulan Tugas
                 </h3>
               </div>
               <button
@@ -193,25 +193,6 @@ const Literacy4: React.FC<Literacy4Props> = ({ onNext, onBack }) => {
               </button>
             </div>
             <div className="p-4 flex flex-col gap-3">
-              <a
-                href="https://drive.google.com/file/d/1PAF90eMoL4Ae9bWfJ810n940_4i4XfRO/view?usp=drive_link"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group"
-              >
-                <span className="material-symbols-outlined text-2xl text-[#528C46]">
-                  article
-                </span>
-                <div className="flex-1">
-                  <p className="font-bold text-[#0A110B] text-sm">
-                    Tautan Jurnal Artikel
-                  </p>
-                  <p className="text-xs text-[#6B7280]">drive.google.com/...</p>
-                </div>
-                <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">
-                  open_in_new
-                </span>
-              </a>
               <a
                 href="https://forms.gle/maPg1qzZnj2EwzeX6"
                 target="_blank"

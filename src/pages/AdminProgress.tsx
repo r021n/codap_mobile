@@ -8,12 +8,30 @@ interface AdminProgressProps {
   onBack: () => void;
 }
 
+export interface StageConfig {
+  key: string;
+  shortLabel: string;
+  name: string;
+}
+
+export const APP_STAGES: StageConfig[] = [
+  { key: 'observation', shortLabel: 'F1', name: 'Observasi' },
+  { key: 'investigation', shortLabel: 'F2', name: 'Investigasi' },
+  { key: 'analysis', shortLabel: 'F3', name: 'Analisis' },
+  { key: 'literacy', shortLabel: 'F4', name: 'Literasi 1' },
+  { key: 'literacy2', shortLabel: 'F5', name: 'Literasi 2' },
+  { key: 'literacy3', shortLabel: 'F6', name: 'Literasi 3' },
+  { key: 'literacy4', shortLabel: 'F7', name: 'Literasi 4' },
+  { key: 'literacy5', shortLabel: 'F8', name: 'Literasi 5' },
+];
+
 interface UserProgressData {
   id: number;
   fullName: string;
   className: string;
   status: string;
   completedPagesCount: number;
+  completedPages?: string[];
 }
 
 const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
@@ -23,7 +41,7 @@ const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
   const [search, setSearch] = useState('');
   const limit = 12;
 
-  const totalStages = 9; 
+  const totalStages = APP_STAGES.length; 
   const isAdmin = user?.status === "admin";
 
   const {
@@ -155,8 +173,11 @@ const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
                 </thead>
                 <tbody>
                   {progressData.filter(u => u.status === 'student').map((student, index) => {
-                    const percent = Math.min(100, Math.round((student.completedPagesCount / totalStages) * 100));
-                    
+                    const completedPages = student.completedPages || [];
+                    const activeCompletedCount = APP_STAGES.filter(stage => 
+                      completedPages.includes(stage.key)
+                    ).length;
+
                     return (
                       <tr key={student.id} className="hover:bg-[#FDFCF8] transition-colors group">
                         <td className="py-2.5 px-4 text-xs font-bold text-[#0A110B] border-b border-[#C6E67D]/10 text-center">
@@ -174,15 +195,30 @@ const AdminProgress: React.FC<AdminProgressProps> = ({ onBack }) => {
                         </td>
                         <td className="py-2.5 px-4 border-b border-[#C6E67D]/10">
                           <div className="flex items-center gap-3">
-                            <div className="flex-1 h-2 bg-[#FDFCF8] rounded-full overflow-hidden border border-[#C6E67D]/20 shadow-inner">
-                              <div 
-                                className="h-full bg-[#528C46] rounded-full transition-all duration-1000 ease-out"
-                                style={{ width: `${percent}%` }}
-                              ></div>
+                            <div className="flex-1 flex items-center gap-1.5 flex-wrap">
+                              {APP_STAGES.map((stage) => {
+                                const isCompleted = completedPages.includes(stage.key);
+                                return (
+                                  <div
+                                    key={stage.key}
+                                    title={`${stage.name}: ${isCompleted ? 'Selesai' : 'Belum selesai / Dilewati'}`}
+                                    className={`h-6 px-1.5 rounded-md flex items-center justify-center gap-1 text-[10px] font-bold transition-all ${
+                                      isCompleted
+                                        ? 'bg-[#528C46] text-white shadow-xs'
+                                        : 'bg-[#FDFCF8] border border-[#C6E67D]/30 text-[#9CA3AF]'
+                                    }`}
+                                  >
+                                    <span className="material-symbols-outlined text-[13px] leading-none font-bold">
+                                      {isCompleted ? 'check' : 'remove'}
+                                    </span>
+                                    <span className="leading-none">{stage.shortLabel}</span>
+                                  </div>
+                                );
+                              })}
                             </div>
-                            <div className="w-16 text-right shrink-0">
+                            <div className="w-14 text-right shrink-0">
                               <span className="text-xs font-bold text-[#0A110B]">
-                                {student.completedPagesCount}
+                                {activeCompletedCount}
                               </span>
                               <span className="text-xs font-medium text-[#6B7280]">
                                 /{totalStages}

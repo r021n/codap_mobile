@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/auth-context";
 import AIChatModal, { type ChatMessage } from "../components/AIChatModal";
+import AIButton from "../components/AIButton";
 
 interface Literacy5Props {
   onBack: () => void;
@@ -15,7 +16,7 @@ const Literacy5: React.FC<Literacy5Props> = ({ onBack, onNext }) => {
   const [showChat, setShowChat] = useState(false);
 
   const tasks = [
-    "Buatlah poster rekomendasi mitigasi/ adaptasi terhadap permasalahan pencemaran udara di daerah Jawa Tengah berdasarkan data yang telah kamu olah dengan CODAP dan model yang telah kamu buat pada tahap-tahap sebelumnya! (Ketentuan tugas poster ada pada laman di bawah)",
+    "Buatlah poster rekomendasi mitigasi/ adaptasi terhadap permasalahan pencemaran udara di daerah Jawa Tengah berdasarkan data yang telah kamu olah dengan CODAP dan model yang telah kamu buat pada tahap-tahap sebelumnya!",
     "Gunakan AI untuk mencari dan merancang ide. Desain dan keseluruhan konten poster harus dibuat secara mandiri oleh kelompok!",
     "Kerjakan posttest literasi data sebagai tahap akhir evaluasi pemahamanmu.",
     "Komunikasikan hasil karyamu melalui media sosial atau forum sekolah untuk menyebarkan kesadaran lingkungan.",
@@ -96,48 +97,21 @@ const Literacy5: React.FC<Literacy5Props> = ({ onBack, onNext }) => {
                 </span>
               </div>
             </div>
-
-            <button
-              onClick={() => setShowChat(true)}
-              className="relative overflow-hidden bg-linear-to-r from-white to-[#C6E67D]/20 px-4 py-2 rounded-full shadow-[0_2px_10px_rgba(82,140,70,0.1)] border border-[#528C46]/30 flex items-center gap-2.5 group hover:border-[#528C46] hover:shadow-[0_4px_15px_rgba(82,140,70,0.2)] transition-all duration-500 active:scale-95 shrink-0"
-            >
-              {/* Animated Background Glow */}
-              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
-
-              <div className="relative flex items-center gap-2">
-                <div className="w-7 h-7 bg-white rounded-full shadow-inner flex items-center justify-center border border-[#C6E67D]/50 group-hover:rotate-15 transition-transform duration-500">
-                  <span className="material-symbols-outlined text-[#528C46] text-[18px] animate-gentle-bounce">
-                    psychology
-                  </span>
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-[7px] font-black text-[#528C46] uppercase tracking-[0.2em] leading-tight mb-0.5 whitespace-nowrap">
-                    Smart Helper
-                  </span>
-                  <span className="text-[11px] font-extrabold text-[#0A110B] leading-tight flex items-center gap-1 whitespace-nowrap">
-                    Bantuan AI
-                    <span className="w-1 h-1 bg-[#528C46] rounded-full animate-pulse"></span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Sparkle Icon */}
-              <span className="material-symbols-outlined text-[14px] text-[#528C46] opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute -top-1 right-0 animate-spin-slow">
-                auto_awesome
-              </span>
-            </button>
           </div>
         </div>
 
-        <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm shrink-0 ml-2 flex items-center gap-2">
-          <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest whitespace-nowrap">
-            Literasi Data
-          </h1>
-          {isCompleted && (
-            <span className="material-symbols-outlined text-[#528C46] text-[16px]">
-              check_circle
-            </span>
-          )}
+        <div className="flex items-center gap-2 shrink-0 ml-2">
+          <div className="bg-white px-4 py-1.5 rounded-full border border-[#C6E67D]/30 shadow-sm flex items-center gap-2">
+            <h1 className="text-xs font-black text-[#0A110B] uppercase tracking-widest whitespace-nowrap">
+              Literasi Data
+            </h1>
+            {isCompleted && (
+              <span className="material-symbols-outlined text-[#528C46] text-[16px]">
+                check_circle
+              </span>
+            )}
+          </div>
+          <AIButton onClick={() => setShowChat(true)} />
         </div>
       </div>
 
@@ -204,7 +178,7 @@ const Literacy5: React.FC<Literacy5Props> = ({ onBack, onNext }) => {
                     Tautan Tugas & Refleksi
                   </p>
                   <p className="text-[10px] text-[#6B7280] uppercase tracking-wider">
-                    LKPD 9, Poster, Refleksi
+                    LKPD 9, Refleksi, Posttest
                   </p>
                 </div>
               </button>
@@ -224,10 +198,10 @@ const Literacy5: React.FC<Literacy5Props> = ({ onBack, onNext }) => {
                   await markPageCompleted("literacy5");
                   onNext();
                 }}
-                className="w-full py-4 bg-[#528C46] text-white rounded-full font-bold text-[12px] uppercase tracking-widest shadow-lg hover:bg-[#3d6934] active:translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#0A110B] text-white rounded-full font-bold text-[11px] uppercase tracking-widest shadow-md hover:bg-[#528C46] active:translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 Pembelajaran Selesai
-                <span className="material-symbols-outlined text-[16px]">
+                <span className="material-symbols-outlined text-[14px]">
                   celebration
                 </span>
               </button>
@@ -268,30 +242,11 @@ const Literacy5: React.FC<Literacy5Props> = ({ onBack, onNext }) => {
                 </span>
                 <div className="flex-1">
                   <p className="font-bold text-[#0A110B] text-sm">
-                    Pengumpulan LKPD 9
+                    Pengumpulan LKPD 8
                   </p>
                   <p className="text-xs text-[#6B7280]">
                     forms.gle/maPg1qzZnj2EwzeX6
                   </p>
-                </div>
-                <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">
-                  open_in_new
-                </span>
-              </a>
-              <a
-                href="https://docs.google.com/document/d/1wbiEEzvG0oFLmsKit0qg1MBX5nd3OQN4/edit?usp=sharing&ouid=114334106960553096157&rtpof=true&sd=true"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-2xl hover:border-[#528C46] hover:shadow-md transition-all group"
-              >
-                <span className="material-symbols-outlined text-2xl text-[#528C46]">
-                  description
-                </span>
-                <div className="flex-1">
-                  <p className="font-bold text-[#0A110B] text-sm">
-                    Ketentuan Tugas Poster
-                  </p>
-                  <p className="text-xs text-[#6B7280]">docs.google.com/...</p>
                 </div>
                 <span className="material-symbols-outlined text-[#528C46] text-sm group-hover:translate-x-1 transition-transform">
                   open_in_new

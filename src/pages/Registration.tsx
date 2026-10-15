@@ -313,7 +313,7 @@ const Registration = ({ onComplete, onSwitch }: RegistrationProps) => {
               disabled={!isFormValid || isLoading}
               className={`w-full py-2.5 rounded-full font-bold text-xs uppercase tracking-widest transition-all duration-300 shadow-sm ${
                 isFormValid && !isLoading
-                  ? "bg-[#0A110B] text-white hover:bg-black active:translate-y-0.5 cursor-pointer"
+                  ? "bg-[#0A110B] text-white hover:bg-[#528C46] active:translate-y-0.5 cursor-pointer"
                   : "bg-[#0A110B]/20 text-[#0A110B]/50 cursor-not-allowed"
               }`}
             >
