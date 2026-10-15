@@ -475,6 +475,46 @@ const DeviceSVG = ({
  {/* Transparent hit area for power button - enlarged for touch */}
  <circle cx="255" cy="200" r="25" fill="transparent" />
 
+ {/* Pointer so the user knows the power button is here */}
+ <g className={powerState === "off" ? "animate-pulse" : ""} pointerEvents="none">
+ <circle
+ cx="255"
+ cy="200"
+ r="17"
+ fill="none"
+ stroke={powerState === "off" ? "#f59e0b" : "#94a3b8"}
+ strokeWidth="1"
+ strokeDasharray="3 3"
+ />
+ <text
+ x="255"
+ y="169"
+ textAnchor="middle"
+ fill={powerState === "off" ? "#f59e0b" : "#94a3b8"}
+ fontSize="8"
+ fontWeight="bold"
+ fontFamily="sans-serif"
+ letterSpacing="1"
+ >
+ POWER
+ </text>
+ <path
+ d="M 255 175 L 255 184"
+ stroke={powerState === "off" ? "#f59e0b" : "#94a3b8"}
+ strokeWidth="1.5"
+ strokeLinecap="round"
+ fill="none"
+ />
+ <path
+ d="M 251.5 181 L 255 185.5 L 258.5 181"
+ stroke={powerState === "off" ? "#f59e0b" : "#94a3b8"}
+ strokeWidth="1.5"
+ strokeLinecap="round"
+ strokeLinejoin="round"
+ fill="none"
+ />
+ </g>
+
  <circle
  cx="255"
  cy="200"
@@ -895,7 +935,7 @@ export default function AirQualityMeasurementLab({
  "Menyiapkan sensor di Tasikmalaya, Solo, dan Kutai Barat...",
  "Mengukur konsentrasi polutan udara...",
  "Sinkronisasi data antar stasiun...",
- "Menganalisis parameter ISPU...",
+ "Menganalisis parameter ISPU (Indeks Standar Pencemaran Udara)...",
  "Menghitung rata-rata regional...",
  "Finalisasi hasil pengukuran...",
  ];
@@ -1332,8 +1372,9 @@ export default function AirQualityMeasurementLab({
  Alat Analisis
  </h3>
  <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">
- Sentuh & tarik tombol <b>ISPU</b> ke kotak hasil setiap kota
- untuk menganalisis kategori kualitas udara.
+ Sentuh & tarik tombol <b>ISPU</b> (Indeks Standar Pencemaran
+ Udara) ke kotak hasil setiap kota untuk menganalisis kategori
+ kualitas udara.
  </p>
  </div>
 
@@ -1374,8 +1415,11 @@ export default function AirQualityMeasurementLab({
  )}`}
  >
  <div className="flex justify-between items-center mb-1">
- <p className="text-sm opacity-90 font-medium">
+ <p className="text-sm opacity-90 font-medium leading-tight">
  Kategori ISPU
+ <span className="block text-[10px] font-normal opacity-75">
+ Indeks Standar Pencemaran Udara
+ </span>
  </p>
  <span className="text-2xl font-black">
  {res.overallMax}
@@ -1402,7 +1446,14 @@ export default function AirQualityMeasurementLab({
  >
  ?
  </div>
+ <span>
  {isHovered ? "Ready to Scan" : "Drop Tombol ISPU"}
+ </span>
+ {!isHovered && (
+ <span className="text-[10px] not-italic opacity-75 text-center leading-tight px-2">
+ Indeks Standar Pencemaran Udara
+ </span>
+ )}
  </div>
  )}
 
@@ -1552,6 +1603,9 @@ export default function AirQualityMeasurementLab({
  <span className="text-[10px] font-bold text-[#528C46] uppercase tracking-widest mt-1">
  Scanner
  </span>
+ <span className="text-[9px] font-medium text-[#528C46]/70 leading-tight text-center max-w-[92px]">
+ Indeks Standar Pencemaran Udara
+ </span>
  </div>
  )}
  <div className="flex-1 overflow-y-auto p-4">
@@ -1573,8 +1627,11 @@ export default function AirQualityMeasurementLab({
  <div className="bg-[#528C46] text-white p-3 rounded-full border-4 border-[#C6E67D] shadow-[0_0_25px_rgba(37,99,235,0.7)] font-black text-sm tracking-tighter">
  ISPU
  </div>
+ <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-[#528C46] text-white text-[8px] font-medium rounded whitespace-nowrap shadow-md">
+ Indeks Standar Pencemaran Udara
+ </div>
  {dragInfo.isTouch && (
- <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-[#528C46] text-white text-[8px] font-bold rounded uppercase whitespace-nowrap shadow-md">
+ <div className="absolute top-full left-1/2 -translate-x-1/2 mt-9 px-2 py-1 bg-[#528C46] text-white text-[8px] font-bold rounded uppercase whitespace-nowrap shadow-md">
  Scanning Mode
  </div>
  )}

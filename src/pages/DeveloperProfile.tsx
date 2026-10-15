@@ -17,21 +17,21 @@ const profiles: ProfileData[] = [
     role: "Mahasiswa / Pengembang",
     name: "Nama Mahasiswa",
     subInfo: "Pendidikan Ilmu Pengetahuan Alam",
-    institution: "Universitas Asal",
+    institution: "Universitas Sebelas Maret",
     photoUrl: "", // Bisa diganti dengan URL/path foto mahasiswa
   },
   {
     role: "Dosen Pembimbing I",
     name: "Nama Dosen Pembimbing 1",
     subInfo: "Dosen Pembimbing Utama",
-    institution: "Universitas Asal",
+    institution: "Universitas Sebelas Maret",
     photoUrl: "", // Bisa diganti dengan URL/path foto dosen pembimbing 1
   },
   {
     role: "Dosen Pembimbing II",
     name: "Nama Dosen Pembimbing 2",
     subInfo: "Dosen Pembimbing Pendamping",
-    institution: "Universitas Asal",
+    institution: "Universitas Sebelas Maret",
     photoUrl: "", // Bisa diganti dengan URL/path foto dosen pembimbing 2
   },
 ];

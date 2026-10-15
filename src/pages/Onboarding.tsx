@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "../context/auth-context";
 import envImg from "../assets/screen_1/env.png";
+import logoUns from "../assets/logos/logo-uns-1.webp";
+import logoFkip from "../assets/logos/FKIP-Fakultas-Keguruan-dan-Ilmu-Pendidikan-2.png";
+import logoLppm from "../assets/logos/cropped-cropped-Logo-Slogan-LPPM-2024-2.png";
 
 interface OnboardingProps {
   onStart: () => void;
@@ -14,6 +17,30 @@ const Onboarding = ({ onStart, onDeveloperProfile }: OnboardingProps) => {
 
   return (
     <div className="w-[100vw] h-[100vh] bg-[#FDFCF8] flex flex-row overflow-hidden selection:bg-[#C6E67D] selection:text-[#0A110B] relative">
+      {/* Top Left Logos (UNS, FKIP, LPPM) */}
+      <div className="absolute top-4 left-4 md:top-5 md:left-5 z-20 flex items-center gap-2 md:gap-2.5 bg-white/85 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[#C6E67D]/35 shadow-xs">
+        <img
+          src={logoUns}
+          alt="Logo Universitas Sebelas Maret"
+          className="h-6 md:h-7 w-auto object-contain"
+          title="Universitas Sebelas Maret"
+        />
+        <div className="w-[1px] h-3.5 bg-gray-200" />
+        <img
+          src={logoFkip}
+          alt="Logo FKIP UNS"
+          className="h-5 md:h-6 w-auto object-contain"
+          title="FKIP UNS"
+        />
+        <div className="w-[1px] h-3.5 bg-gray-200" />
+        <img
+          src={logoLppm}
+          alt="Logo LPPM UNS"
+          className="h-5 md:h-6 w-auto object-contain"
+          title="LPPM UNS"
+        />
+      </div>
+
       {/* Top Action Bar (Profil Pengembang & Logout) */}
       <div className="absolute top-4 right-4 md:top-5 md:right-5 z-20 flex items-center gap-2">
         <button
