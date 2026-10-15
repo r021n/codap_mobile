@@ -374,7 +374,7 @@ const Analysis: React.FC<AnalysisProps> = ({ onNext, onBack }) => {
               </button>
             </div>
             <div className="p-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
-              <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              <div className="flex flex-col gap-4">
                 {codapSteps.map((step, i) => (
                   <div key={i} className="flex gap-3 items-start">
                     <div className="shrink-0 text-[#528C46] text-sm font-black pt-0.5">
