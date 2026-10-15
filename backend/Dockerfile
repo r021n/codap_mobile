@@ -37,12 +37,14 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 hono
 
 WORKDIR /app
-RUN chown -R hono:nodejs /app
 
 # Copy production dependencies and compiled build
 COPY --from=deps --chown=hono:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=hono:nodejs /app/dist ./dist
 COPY --from=builder --chown=hono:nodejs /app/package.json ./package.json
+
+# Pre-create uploads directory and ensure correct ownership for non-root user
+RUN mkdir -p /app/uploads/chat && chown -R hono:nodejs /app
 
 USER hono
 
