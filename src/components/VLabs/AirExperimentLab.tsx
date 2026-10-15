@@ -5,6 +5,7 @@ import {
  useCallback,
  type PointerEvent as ReactPointerEvent,
 } from "react";
+import { InventoryToolIcon } from "../../assets/air_labs/tools";
 
 type PortId = "B" | "C" | "D" | "J";
 
@@ -402,12 +403,22 @@ const GelasUkurSVG = ({ sodaAmount }: GelasUkurProps) => (
  />
  )}
 
- {/* Badan */}
+ {/* Badan Gelas Ukur dengan Moncong (Pour Spout) */}
  <path
- d="M 15 10 L 45 10 L 45 110 A 5 5 0 0 1 40 115 L 20 115 A 5 5 0 0 1 15 110 Z"
+ d="M 7 7 L 16 8.5 L 45 8.5 Q 47.5 9.5 45 11.5 L 45 110 A 5 5 0 0 1 40 115 L 20 115 A 5 5 0 0 1 15 110 L 15 16 Q 10 13 7 7 Z"
  fill="rgba(255,255,255,0.4)"
  stroke="#475569"
  strokeWidth="2"
+ strokeLinejoin="round"
+ />
+ {/* Garis Bibir / Moncong 3D */}
+ <path
+ d="M 7 7 Q 16 11 45 8.5"
+ stroke="#94a3b8"
+ strokeWidth="1.5"
+ fill="none"
+ opacity="0.6"
+ strokeLinecap="round"
  />
  <path d="M 10 115 L 50 115 L 50 120 L 10 120 Z" fill="#475569" />
  </svg>
@@ -506,6 +517,8 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  const [durationInput, setDurationInput] = useState<string>(
  String(DEFAULT_DURATION),
  );
+ const [isInventoryOpen, setIsInventoryOpen] = useState<boolean>(true);
+ const [isLKPDOpen, setIsLKPDOpen] = useState<boolean>(false);
 
  const [hoseDrawing, setHoseDrawing] =
  useState<HoseDrawing>(initialHoseDrawing);
@@ -601,6 +614,33 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  visualViewport?.removeEventListener("resize", schedulePortCoordsUpdate);
  };
  }, [schedulePortCoordsUpdate, state.isSunny]);
+
+ useEffect(() => {
+ schedulePortCoordsUpdate();
+ const t1 = window.setTimeout(updatePortCoords, 150);
+ const t2 = window.setTimeout(updatePortCoords, 320);
+ return () => {
+ window.clearTimeout(t1);
+ window.clearTimeout(t2);
+ };
+ }, [isInventoryOpen, isLKPDOpen, schedulePortCoordsUpdate, updatePortCoords]);
+
+ useEffect(() => {
+ if (!workspaceRef.current) return;
+ const ro = new ResizeObserver(() => {
+ updatePortCoords();
+ });
+ ro.observe(workspaceRef.current);
+ return () => {
+ ro.disconnect();
+ };
+ }, [updatePortCoords]);
+
+ useEffect(() => {
+ if (state.isRunning) {
+ setIsLKPDOpen(true);
+ }
+ }, [state.isRunning]);
 
  useEffect(() => {
  let interval: ReturnType<typeof setInterval> | undefined;
@@ -1016,19 +1056,19 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
 
  const renderInvItem = (
  id: InventoryItem,
- emoji: string,
  label: string,
  extraClass = "",
  ) => (
  <div
  key={id}
  onPointerDown={(e) => handleItemPointerDown(e, id)}
- className={`touch-none cursor-grab flex flex-col items-center justify-center p-2 rounded-lg b ${extraClass} 
+ className={`touch-none cursor-grab flex flex-col items-center justify-center p-2 rounded-lg border ${extraClass} 
  ${dragInfo.item === id ? "opacity-50 border-dashed border-[#528C46]" : "bg-[#FDFCF8] border-[#C6E67D]/20 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] hover:bg-[#528C46]/5 hover:border-[#528C46]/50 active:scale-95"}`}
  >
- <span className="text-2xl pointer-events-none select-none">
- {emoji}
- </span>
+ <InventoryToolIcon
+ item={id}
+ className="w-8 h-8 pointer-events-none select-none"
+ />
  <span className="text-[10px] text-center mt-1 text-[#0A110B] font-semibold pointer-events-none select-none leading-tight">
  {label}
  </span>
@@ -1037,63 +1077,80 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
 
  return (
  <div className="flex h-[100vh] w-[100vw] flex-row overflow-hidden bg-[#FDFCF8] font-sans text-[#0A110B]">
- {/* PANEL KIRI: INVENTORY — tinggi = 100vh */}
- <div className="z-20 flex w-[35vw] h-full min-h-0 flex-col border-r border-[#C6E67D]/20 bg-[#FDFCF8] shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)]">
- <div className="p-3 border-b border-[#C6E67D]/20 bg-[#FDFCF8]/90 sticky top-0 backdrop-blur-sm z-10">
+ {/* PANEL KIRI: INVENTORY */}
+ <div
+ className={`z-20 flex h-full min-h-0 flex-col border-r border-[#C6E67D]/20 bg-[#FDFCF8] shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)] transition-all duration-300 ease-in-out ${
+ isInventoryOpen
+ ? "w-[30vw] max-w-[280px] min-w-[210px] opacity-100"
+ : "w-0 min-w-0 max-w-0 opacity-0 overflow-hidden border-r-0 pointer-events-none"
+ }`}
+ >
+ <div className="p-2.5 border-b border-[#C6E67D]/20 bg-[#FDFCF8]/90 sticky top-0 backdrop-blur-sm z-10 shrink-0">
  <div className="flex items-center justify-between">
- <div>
- <h2 className="text-sm font-serif font-bold text-[#528C46]">
- Rak Alat & Bahan
+ <h2 className="text-xs font-bold text-[#528C46]">
+ Alat & Bahan
  </h2>
- <p className="text-[10px] text-[#6B7280]">
- Sentuh & tarik ke area praktikum
- </p>
- </div>
- <div className="flex items-center gap-2">
+ <div className="flex items-center gap-1.5">
  <button
  onClick={onBack}
- className="px-2.5 py-1.5 text-[10px] font-semibold rounded-lg b border-[#C6E67D]/30 text-[#6B7280] hover:bg-[#FDFCF8] active:scale-95 transition-all duration-150"
+ className="px-2 py-1 text-[10px] font-semibold rounded-lg border border-[#C6E67D]/30 text-[#6B7280] hover:bg-[#FDFCF8] active:scale-95 transition-all duration-150"
  title="Kembali ke Awal"
  >
  ← Kembali
  </button>
  <button
  onClick={handleReset}
- className="px-2.5 py-1.5 text-[10px] font-semibold rounded-lg b border-foreground text-[#0A110B] hover:bg-foreground hover:text-white active:scale-95 transition-all duration-150"
+ className="px-2 py-1 text-[10px] font-semibold rounded-lg border border-foreground text-[#0A110B] hover:bg-foreground hover:text-white active:scale-95 transition-all duration-150"
  title="Reset Lab"
  >
  ↺ Reset
  </button>
+ <button
+ onClick={() => setIsInventoryOpen(false)}
+ className="p-1 rounded-lg border border-[#C6E67D]/30 text-[#6B7280] hover:bg-[#528C46]/10 hover:text-[#528C46] active:scale-95 transition-all"
+ title="Sembunyikan Panel Alat"
+ >
+ <svg
+ className="w-4 h-4"
+ viewBox="0 0 24 24"
+ fill="none"
+ stroke="currentColor"
+ strokeWidth="2.5"
+ strokeLinecap="round"
+ strokeLinejoin="round"
+ >
+ <polyline points="15 18 9 12 15 6" />
+ </svg>
+ </button>
  </div>
  </div>
  </div>
- <div className="flex-1 overflow-y-auto p-3">
- <div className="grid grid-cols-3 gap-2 ">
+ <div className="flex-1 overflow-y-auto p-2.5">
+ <div className="grid grid-cols-3 gap-2">
  {state.inventory.thermoA &&
- renderInvItem("thermoA", "🌡️", "Thermo A")}
+ renderInvItem("thermoA", "Thermo A")}
  {state.inventory.thermoB &&
- renderInvItem("thermoB", "🌡️", "Thermo B")}
+ renderInvItem("thermoB", "Thermo B")}
  {state.inventory.thermoD &&
- renderInvItem("thermoD", "🌡️", "Thermo D")}
+ renderInvItem("thermoD", "Thermo D")}
  {state.inventory.stopperA &&
- renderInvItem("stopperA", "🟫", "Gabus A")}
+ renderInvItem("stopperA", "Gabus A")}
  {state.inventory.stopperB &&
- renderInvItem("stopperB", "🟫", "Gabus B")}
+ renderInvItem("stopperB", "Gabus B")}
  {state.inventory.stopperC &&
- renderInvItem("stopperC", "🟫", "Gabus C")}
+ renderInvItem("stopperC", "Gabus C")}
  {state.inventory.stopperD &&
- renderInvItem("stopperD", "🟫", "Gabus D")}
- {state.inventory.plant && renderInvItem("plant", "🌱", "Tanaman")}
+ renderInvItem("stopperD", "Gabus D")}
+ {state.inventory.plant && renderInvItem("plant", "Tanaman")}
  {state.inventory.cylinder &&
- renderInvItem("cylinder", "🧪", "Gelas Ukur")}
+ renderInvItem("cylinder", "Gelas Ukur")}
  {state.inventory.bakingSoda &&
- renderInvItem("bakingSoda", "🧂", "Soda (10 ml)")}
- {state.inventory.vinegar && renderInvItem("vinegar", "🧴", "Cuka")}
+ renderInvItem("bakingSoda", "Baking Soda (5 gr)")}
+ {state.inventory.vinegar && renderInvItem("vinegar", "Cuka")}
  {state.inventory.sun &&
  isSetupComplete(state) &&
  renderInvItem(
  "sun",
- "☀️",
  "Matahari",
  "border-[#F59E0B] bg-[#F59E0B]/10 animate-pulse",
  )}
@@ -1101,7 +1158,6 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  state.isSunny &&
  renderInvItem(
  "stopwatch",
- "⏱️",
  "Stopwatch",
  "border-[#528C46] bg-[#528C46]/10 animate-pulse",
  )}
@@ -1112,18 +1168,58 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  {/* PANEL KANAN: AREA PRAKTIKUM & LKPD */}
  <div className="relative flex flex-1 h-full min-h-0 flex-col overflow-hidden">
  {/* Header Instruksi */}
- <div className="bg-[#FDFCF8]/90 backdrop-blur-sm border-b border-[#C6E67D]/20 p-2 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] z-20 shrink-0">
- <p className="text-xs text-[#0A110B] font-medium leading-tight">
+ <div className="bg-[#FDFCF8]/90 backdrop-blur-sm border-b border-[#C6E67D]/20 px-3 py-1.5 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.05)] z-20 shrink-0 flex items-center justify-between gap-2">
+ <div className="flex items-center gap-2 min-w-0">
+ {!isInventoryOpen && (
+ <button
+ onClick={() => setIsInventoryOpen(true)}
+ className="px-2 py-1 text-[10px] font-bold rounded-lg border border-[#528C46]/40 bg-[#FDFCF8] text-[#528C46] shadow-xs hover:bg-[#528C46]/10 active:scale-95 transition-all flex items-center gap-1 shrink-0"
+ title="Buka Rak Alat"
+ >
+ <svg
+ className="w-3.5 h-3.5"
+ viewBox="0 0 24 24"
+ fill="none"
+ stroke="currentColor"
+ strokeWidth="2.5"
+ strokeLinecap="round"
+ strokeLinejoin="round"
+ >
+ <polyline points="9 18 15 12 9 6" />
+ </svg>
+ <span>Alat</span>
+ </button>
+ )}
+ <p className="text-xs text-[#0A110B] font-medium leading-tight truncate">
  <span className="font-bold text-[#528C46]">Instruksi:</span>{" "}
  {getInstruction()}
  </p>
  </div>
+ {!isInventoryOpen && (
+ <div className="flex items-center gap-1.5 shrink-0">
+ <button
+ onClick={onBack}
+ className="px-2 py-1 text-[10px] font-semibold rounded-lg border border-[#C6E67D]/30 text-[#6B7280] hover:bg-[#FDFCF8] active:scale-95 transition-all"
+ title="Kembali ke Awal"
+ >
+ ← Kembali
+ </button>
+ <button
+ onClick={handleReset}
+ className="px-2 py-1 text-[10px] font-semibold rounded-lg border border-foreground text-[#0A110B] hover:bg-foreground hover:text-white active:scale-95 transition-all"
+ title="Reset Lab"
+ >
+ ↺ Reset
+ </button>
+ </div>
+ )}
+ </div>
 
- <div className="flex min-flex-1 flex-col">
+ <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
  {/* Meja Praktikum (Area Interaktif) */}
  <div
  ref={workspaceRef}
- className={`relative flex min-h-0 flex-[1.1] touch-none flex-col overflow-hidden transition-colors duration-1000 
+ className={`relative flex min-h-0 flex-1 touch-none flex-col overflow-hidden transition-colors duration-1000 
  ${state.isSunny ? "bg-[#528C46]/10" : "bg-muted-foreground/5"}
  ${activeDropZone === "environment" ? "ring-inset ring-4 ring-primary/50" : ""}`}
  data-dropzone="environment"
@@ -1318,7 +1414,7 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  value={
  state.scale.hasCylinder
  ? state.scale.sodaAmount > 0
- ? 10.0
+ ? 5.0
  : 0.0
  : 0.0
  }
@@ -1332,14 +1428,39 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  </div>
 
  {/* Panel LKPD (Bawah) */}
- <div className="z-40 flex min-flex-1 flex-col border-t-2 border-[#C6E67D]/20 bg-[#FDFCF8] shadow-[0px_-4px_6px_-1px_rgba(0,0,0,0.05)]">
- <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#C6E67D]/20 bg-[#FDFCF8] px-3 py-1.5 ">
- <h3 className="font-serif font-bold text-xs text-[#528C46]">
- 📝 LKPD Data Suhu
+ <div
+ className={`z-40 flex flex-col border-t-2 border-[#C6E67D]/20 bg-[#FDFCF8] shadow-[0px_-4px_6px_-1px_rgba(0,0,0,0.05)] transition-all duration-300 ease-in-out shrink-0 ${
+ isLKPDOpen ? "h-[36vh] max-h-52" : "h-auto"
+ }`}
+ >
+ <div className="flex items-center justify-between gap-2 border-b border-[#C6E67D]/20 bg-[#FDFCF8] px-3 py-1.5 shrink-0">
+ <div className="flex items-center gap-2">
+ <h3 className="font-bold text-xs text-[#528C46]">
+ LKPD Data Suhu
  </h3>
- <div className="flex flex-wrap items-center justify-end gap-2">
+ <button
+ onClick={() => setIsLKPDOpen((prev) => !prev)}
+ className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded border border-[#C6E67D]/30 text-[#6B7280] hover:bg-[#528C46]/10 hover:text-[#528C46] active:scale-95 transition-all"
+ title={isLKPDOpen ? "Sembunyikan LKPD" : "Tampilkan LKPD"}
+ >
+ <span>{isLKPDOpen ? "Sembunyikan" : "Tampilkan"}</span>
+ <svg
+ className={`w-3 h-3 transition-transform duration-200 ${isLKPDOpen ? "rotate-180" : ""}`}
+ viewBox="0 0 24 24"
+ fill="none"
+ stroke="currentColor"
+ strokeWidth="2.5"
+ strokeLinecap="round"
+ strokeLinejoin="round"
+ >
+ <polyline points="18 15 12 9 6 15" />
+ </svg>
+ </button>
+ </div>
+
+ <div className="flex items-center gap-2">
  {/* Durasi Custom */}
- <div className="flex items-center gap-1 text-[10px] ">
+ <div className="flex items-center gap-1 text-[10px]">
  <label
  htmlFor="duration-input"
  className="text-[#6B7280] font-medium"
@@ -1354,29 +1475,31 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  onChange={(e) => handleDurationChange(e.target.value)}
  onBlur={handleDurationBlur}
  disabled={state.isRunning || isLabFinished}
- className="w-12 rounded border border-[#C6E67D]/30 bg-[#FDFCF8] px-1.5 py-0.5 text-center font-sans font-semibold text-[#0A110B] focus:border-[#528C46] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 "
+ className="w-12 rounded border border-[#C6E67D]/30 bg-[#FDFCF8] px-1.5 py-0.5 text-center font-sans font-semibold text-[#0A110B] focus:border-[#528C46] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
  />
  <span className="text-[#6B7280]">mnt</span>
  </div>
- <div className="rounded border border-[#528C46]/20 bg-[#FDFCF8] px-2 py-0.5 font-sans text-xs font-semibold text-[#528C46] ">
- Waktu: {state.time}/{state.duration} Menit
+ <div className="rounded border border-[#528C46]/20 bg-[#FDFCF8] px-2 py-0.5 font-sans text-xs font-semibold text-[#528C46]">
+ {state.time}/{state.duration} Mnt
  </div>
  </div>
  </div>
+
+ {isLKPDOpen && (
  <div className="flex-1 overflow-auto">
- <table className="w-max min-w-full text-left text-[11px] ">
+ <table className="w-max min-w-full text-left text-[11px]">
  <thead className="sticky top-0 border-b border-[#C6E67D]/20 bg-[#FDFCF8] text-[#0A110B]">
  <tr>
- <th className="p-1.5 pl-4 font-semibold ">
+ <th className="p-1.5 pl-4 font-semibold">
  Menit ke-
  </th>
- <th className="p-1.5 font-semibold ">
+ <th className="p-1.5 font-semibold">
  Tabung A (Kontrol)
  </th>
- <th className="p-1.5 font-semibold ">
+ <th className="p-1.5 font-semibold">
  Tabung B (+CO2)
  </th>
- <th className="p-1.5 font-semibold ">
+ <th className="p-1.5 font-semibold">
  Tabung D (Toples)
  </th>
  </tr>
@@ -1397,19 +1520,19 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  key={log.time}
  className="transition-colors hover:bg-[#FDFCF8]/50"
  >
- <td className="p-1.5 pl-4 font-sans font-semibold text-[#0A110B] ">
+ <td className="p-1.5 pl-4 font-sans font-semibold text-[#0A110B]">
  {log.time}
  </td>
- <td className="p-1.5 font-sans text-[#6B7280] ">
+ <td className="p-1.5 font-sans text-[#6B7280]">
  {log.tempA} °C
  </td>
- <td className="p-1.5 font-sans font-bold text-[#528C46] ">
+ <td className="p-1.5 font-bold text-[#528C46]">
  {log.tempB} °C{" "}
  {parseFloat(log.tempB) > parseFloat(log.tempA)
- ? "🔥"
+ ? "↑"
  : ""}
  </td>
- <td className="p-1.5 font-sans text-[#6B7280] ">
+ <td className="p-1.5 font-sans text-[#6B7280]">
  {log.tempD} °C
  </td>
  </tr>
@@ -1418,16 +1541,17 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  </tbody>
  </table>
  </div>
+ )}
 
  {/* Footer: Tombol Reset setelah selesai */}
- {isLabFinished && (
- <div className="flex items-center justify-center gap-3 border-t border-[#C6E67D]/20 bg-[#FDFCF8] p-3">
- <p className="text-xs font-semibold text-[#528C46] ">
- ✅ Praktikum Selesai!
+ {isLKPDOpen && isLabFinished && (
+ <div className="flex items-center justify-center gap-3 border-t border-[#C6E67D]/20 bg-[#FDFCF8] p-2 shrink-0">
+ <p className="text-xs font-semibold text-[#528C46]">
+ Praktikum Selesai!
  </p>
  <button
  onClick={handleReset}
- className="rounded-lg bg-[#528C46] px-4 py-1.5 text-xs font-semibold text-white transition-all duration-150 hover:bg-[#528C46]/90 active:scale-95 "
+ className="rounded-lg bg-[#528C46] px-3 py-1 text-xs font-semibold text-white transition-all duration-150 hover:bg-[#528C46]/90 active:scale-95"
  >
  ↺ Ulangi Percobaan
  </button>
@@ -1438,32 +1562,14 @@ export default function AirExperimentLab({ onBack }: AirExperimentLabProps) {
  </div>
 
  {/* RENDER ITEM DRAG (OVERLAY KUSTOM) */}
- {dragInfo.isDragging && (
+ {dragInfo.isDragging && dragInfo.item && (
  <div
  id="drag-overlay"
  className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-2xl scale-110"
  style={{ left: dragInfo.x, top: dragInfo.y }}
  >
- <div className="bg-[#FDFCF8] p-3 rounded-xl b border-[#528C46] shadow-[0_0_15px_rgba(16,185,129,0.3)]">
- <span className="text-4xl">
- {dragInfo.item === "thermoA" ||
- dragInfo.item === "thermoB" ||
- dragInfo.item === "thermoD"
- ? "🌡️"
- : ""}
- {dragInfo.item === "stopperA" ||
- dragInfo.item === "stopperB" ||
- dragInfo.item === "stopperC" ||
- dragInfo.item === "stopperD"
- ? "🟫"
- : ""}
- {dragInfo.item === "plant" ? "🌱" : ""}
- {dragInfo.item === "cylinder" ? "🧪" : ""}
- {dragInfo.item === "bakingSoda" ? "🧂" : ""}
- {dragInfo.item === "vinegar" ? "🧴" : ""}
- {dragInfo.item === "sun" ? "☀️" : ""}
- {dragInfo.item === "stopwatch" ? "⏱️" : ""}
- </span>
+ <div className="bg-[#FDFCF8] p-2.5 rounded-xl border-2 border-[#528C46] shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+ <InventoryToolIcon item={dragInfo.item} className="w-10 h-10" />
  </div>
  </div>
  )}
